@@ -82,3 +82,22 @@ export function buySkin(id: string, cost: number): PersistState | null {
     selectedSkin: id,
   });
 }
+
+/** First-run howto flag (brief key). Separate from save blob. */
+const HOWTO_KEY = 'snakepulse:howto';
+
+export function isHowtoSeen(): boolean {
+  try {
+    return localStorage.getItem(HOWTO_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function markHowtoSeen(): void {
+  try {
+    localStorage.setItem(HOWTO_KEY, '1');
+  } catch {
+    /* quota / private */
+  }
+}

@@ -8,7 +8,16 @@ import {
   setPlayerDir,
   tick,
 } from './game/engine';
-import { buySkin, loadPersist, recordRun, savePersist, unlockSkin } from './game/persist';
+import {
+  buySkin,
+  isHowtoSeen,
+  loadPersist,
+  markHowtoSeen,
+  recordRun,
+  savePersist,
+  unlockSkin,
+} from './game/persist';
+import { buildDeathShareText } from './game/share';
 import { SKINS, canUnlock, skinById, skinCardDisplay } from './game/skins';
 import type { Dir, GameState } from './game/types';
 import {
@@ -47,6 +56,48 @@ function toast(msg: string): void {
   window.setTimeout(() => {
     el.hidden = true;
   }, 1800);
+}
+
+function legacyCopy(text: string): void {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  } catch {
+    /* ignore */
+  }
+}
+
+function copyShare(text: string): void {
+  const done = () => toast('Copied share text');
+  if (navigator.clipboard?.writeText) {
+    void navigator.clipboard.writeText(text).then(done).catch(() => {
+      legacyCopy(text);
+      done();
+    });
+    return;
+  }
+  legacyCopy(text);
+  done();
+}
+
+function shareDeath(): void {
+  if (!state) return;
+  const skin = skinById(persist.selectedSkin);
+  const best = Math.max(persist.bestScore, state.score);
+  const text = buildDeathShareText(state.score, best, skin.name);
+  if (navigator.share) {
+    void navigator.share({ title: 'SnakePulse', text }).catch(() => {
+      copyShare(text);
+    });
+    return;
+  }
+  copyShare(text);
 }
 
 function refreshHome(): void {
@@ -302,7 +353,10 @@ function wireUi(): void {
 
   $('#btn-play').addEventListener('click', () => startGame());
   $('#btn-howto').addEventListener('click', () => showScreen('howto'));
-  $('#btn-howto-ok').addEventListener('click', () => showScreen('home'));
+  $('#btn-howto-ok').addEventListener('click', () => {
+    markHowtoSeen();
+    showScreen('home');
+  });
   $('#btn-skins').addEventListener('click', () => showScreen('skins'));
   $('#btn-skins-back').addEventListener('click', () => showScreen('home'));
   $('#btn-settings').addEventListener('click', () => showScreen('settings'));
@@ -348,6 +402,7 @@ function wireUi(): void {
   });
 
   $('#btn-retry').addEventListener('click', () => startGame());
+  $('#btn-share').addEventListener('click', () => shareDeath());
   $('#btn-dead-home').addEventListener('click', () => {
     state = null;
     $('#overlay-dead').hidden = true;
@@ -385,7 +440,11 @@ function wireUi(): void {
 
 bindInput();
 wireUi();
-showScreen('home');
+if (!isHowtoSeen()) {
+  showScreen('howto');
+} else {
+  showScreen('home');
+}
 
 if ('serviceWorker' in navigator) {
   // vite-plugin-pwa injects registration in production build

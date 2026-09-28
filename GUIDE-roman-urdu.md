@@ -67,10 +67,16 @@ Login nahi hai — koi email/password zaroori nahi.
 - **Kaise use karein:** Unse takrao mat; yeh offline AI hain
 - **Result:** Bot mar kar respawn ho sakta hai; aapki death par Retry / Continue
 
-### Death overlay
+### Death overlay + Share
 - **Kahan milega:** Marne ke baad
-- **Kaise use karein:** Pehle short **Ad placeholder (stub)** → **Continue**; phir death panel: **Retry**, **Watch to continue (stub)**, ya **Home**. Agar Settings mein remove-ads stub on ho to interstitial skip.
-- **Result:** Naya run; continue ek dafa stub reward se (koi real ad / network nahi)
+- **Kaise use karein:** Pehle short **Ad placeholder (stub)** → **Continue**; phir death panel: **Retry**, **Share**, **Watch to continue (stub)**, ya **Home**. Agar Settings mein remove-ads stub on ho to interstitial skip.
+- **Share:** Device share sheet (`navigator.share`) jab available ho; warna clipboard pe text copy + short toast. Text: `SnakePulse — score N · best B · {skin}`. Fully offline — koi network nahi.
+- **Result:** Naya run; continue ek dafa stub reward se (koi real ad / network nahi); score friends ko share
+
+### How to play (pehli dafa)
+- **Kahan milega:** Pehli launch par auto howto screen; baad mein Home → **How to play**
+- **Kaise use karein:** Padho → **Got it** (flag `snakepulse:howto` save). Manual button hamesha kaam karta hai.
+- **Result:** Onboarding ek dafa; Play CTA dismiss ke baad free — block nahi
 
 ### Skins
 - **Kahan milega:** Home → **Skins**
