@@ -8,6 +8,10 @@
 
 ## Unreleased
 
+_No changes yet._
+
+## 0.1.2 — 2026-09-28
+
 ### Improved
 - **Death Share:** `#overlay-dead` **Share** button — text `SnakePulse — score N · best B · {skin}`; `navigator.share` when available, else clipboard + toast. Offline only.
 - **First-run howto (once):** auto-show howto when `snakepulse:howto` unset; Got it → Home + persist seen; later launches skip auto; manual How to play still works.
