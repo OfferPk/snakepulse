@@ -12,8 +12,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/snakepulse/manifest.webmanifest" />
     <title>SnakePulse</title>
-    <script type="module" crossorigin src="/snakepulse/assets/index-O0gfBOXd.js"></script>
-    <link rel="stylesheet" crossorigin href="/snakepulse/assets/index-D7WbErFC.css">
+    <script type="module" crossorigin src="/snakepulse/assets/index-D8s6tK2S.js"></script>
+    <link rel="stylesheet" crossorigin href="/snakepulse/assets/index-aNJWhYOk.css">
   <script id="vite-plugin-pwa:register-sw" src="/snakepulse/registerSW.js"></script></head>
   <body>
     <div id="app">
@@ -90,6 +90,14 @@
           <button type="button" class="btn secondary" id="btn-turn-left">◀ Turn</button>
           <button type="button" class="btn ghost" id="btn-mute-play">🔊</button>
           <button type="button" class="btn secondary" id="btn-turn-right">Turn ▶</button>
+        </div>
+
+        <div id="overlay-interstitial" class="overlay" hidden>
+          <div class="panel">
+            <h2>Ad placeholder (stub)</h2>
+            <p class="go-meta" id="interstitial-reason">Death interstitial stub — no real network ad.</p>
+            <button type="button" class="btn primary" id="btn-interstitial-continue">Continue</button>
+          </div>
         </div>
 
         <div id="overlay-dead" class="overlay" hidden>
