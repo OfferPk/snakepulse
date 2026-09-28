@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#070b16" />
+    <meta name="description" content="SnakePulse — offline neon endless snake. Grow, dodge local AI bots, unlock skins. One-thumb arcade PWA." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <title>SnakePulse</title>
+  </head>
+  <body>
+    <div id="app">
+      <!-- HOME -->
+      <section class="screen" data-screen="home">
+        <div class="panel home-panel">
+          <div class="logo-mark" aria-hidden="true"></div>
+          <h1 class="logo">SnakePulse</h1>
+          <p class="tagline">Neon endless snake. Grow, dodge local AI bots. Fully offline.</p>
+          <p class="meta-line">Best: <strong id="home-best">0</strong> · Coins: <strong id="home-coins">0</strong></p>
+          <p class="meta-line">Local practice arena — no online matchmaking.</p>
+          <button type="button" class="btn primary" id="btn-play">Play</button>
+          <button type="button" class="btn secondary" id="btn-skins">Skins</button>
+          <button type="button" class="btn ghost" id="btn-howto">How to play</button>
+          <button type="button" class="btn ghost" id="btn-settings">Settings</button>
+        </div>
+      </section>
+
+      <!-- HOW TO -->
+      <section class="screen" data-screen="howto" hidden>
+        <div class="panel">
+          <h2>How to play</h2>
+          <ul class="howto-list">
+            <li><strong>Swipe</strong> or tap left/right buttons to steer your neon snake.</li>
+            <li><strong>Eat</strong> cyan pellets to grow. Gold pellets give a short speed pulse.</li>
+            <li><strong>Hard walls</strong> — hitting the border ends the run.</li>
+            <li><strong>Local AI bots</strong> share the arena (offline only). Hitting a body ends your run.</li>
+            <li><strong>Skins</strong> unlock from best score or coins — no live events.</li>
+          </ul>
+          <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
+        </div>
+      </section>
+
+      <!-- SKINS -->
+      <section class="screen" data-screen="skins" hidden>
+        <div class="panel">
+          <header class="subhead">
+            <button type="button" class="icon-btn" id="btn-skins-back" aria-label="Back">←</button>
+            <h2>Skins</h2>
+          </header>
+          <p class="hint-text">Coins: <strong id="skins-coins">0</strong> · Best: <strong id="skins-best">0</strong></p>
+          <div id="skin-grid" class="skin-grid"></div>
+          <p class="hint-text">Unlock by reaching the score milestone or spending coins. All offline.</p>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="screen" data-screen="settings" hidden>
+        <div class="panel">
+          <header class="subhead">
+            <button type="button" class="icon-btn" id="btn-settings-back" aria-label="Back">←</button>
+            <h2>Settings</h2>
+          </header>
+          <button type="button" class="btn secondary block" id="btn-mute">🔊 Sound on</button>
+          <button type="button" class="btn secondary block" id="btn-remove-ads">Remove ads (stub)</button>
+          <p class="hint-text" id="ads-status">Ads: enabled (placeholder)</p>
+          <p class="hint-text">Original neon pulse theme. Offline PWA. No real billing / AdMob keys in v0.1.</p>
+        </div>
+      </section>
+
+      <!-- PLAY -->
+      <section class="screen" data-screen="play" hidden>
+        <header class="hud">
+          <button type="button" class="icon-btn" id="btn-menu" aria-label="Menu">⌂</button>
+          <div class="hud-stat"><span class="lbl">Score</span><span id="hud-score">0</span></div>
+          <div class="hud-stat"><span class="lbl">Best</span><span id="hud-best">0</span></div>
+          <div class="hud-stat"><span class="lbl">Len</span><span id="hud-len">4</span></div>
+          <button type="button" class="icon-btn" id="btn-pause" aria-label="Pause">❚❚</button>
+        </header>
+        <div class="board-wrap">
+          <canvas id="arena" width="420" height="420" aria-label="SnakePulse arena"></canvas>
+        </div>
+        <div class="play-bar">
+          <button type="button" class="btn secondary" id="btn-turn-left">◀ Turn</button>
+          <button type="button" class="btn ghost" id="btn-mute-play">🔊</button>
+          <button type="button" class="btn secondary" id="btn-turn-right">Turn ▶</button>
+        </div>
+
+        <div id="overlay-dead" class="overlay" hidden>
+          <div class="panel">
+            <h2>Pulse lost</h2>
+            <p class="go-meta" id="dead-meta">Score 0 · Length 4</p>
+            <button type="button" class="btn primary" id="btn-retry">Retry</button>
+            <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
+            <button type="button" class="btn ghost" id="btn-dead-home">Home</button>
+          </div>
+        </div>
+
+        <div id="overlay-pause" class="overlay" hidden>
+          <div class="panel">
+            <h2>Paused</h2>
+            <p class="go-meta">Local arena — resume anytime.</p>
+            <button type="button" class="btn primary" id="btn-resume">Resume</button>
+            <button type="button" class="btn ghost" id="btn-pause-home">Home</button>
+          </div>
+        </div>
+      </section>
+
+      <div id="toast" class="toast" hidden role="status"></div>
+
+      <div id="a2hs" class="a2hs" hidden>
+        <span>Install SnakePulse: browser menu → <strong>Add to Home Screen</strong></span>
+        <button type="button" id="a2hs-ok" class="btn tiny">OK</button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
