@@ -69,13 +69,13 @@ Login nahi hai — koi email/password zaroori nahi.
 
 ### Death overlay
 - **Kahan milega:** Marne ke baad
-- **Kaise use karein:** **Retry**, **Watch to continue (stub)**, ya **Home**
-- **Result:** Naya run; continue ek dafa stub reward se (koi real ad nahi)
+- **Kaise use karein:** Pehle short **Ad placeholder (stub)** → **Continue**; phir death panel: **Retry**, **Watch to continue (stub)**, ya **Home**. Agar Settings mein remove-ads stub on ho to interstitial skip.
+- **Result:** Naya run; continue ek dafa stub reward se (koi real ad / network nahi)
 
 ### Skins
 - **Kahan milega:** Home → **Skins**
-- **Kaise use karein:** Unlocked skin select; warna score milestone ya coins se unlock/buy
-- **Result:** Neon trail/head color change; sab localStorage mein
+- **Kaise use karein:** Equipped card pe **Equipped** dikhta hai. Locked card: `Best {best}/{score}` + `Buy {cost} (you have {coins})` — jab coins kaafi hon to Buy highlight. Score milestone poora ho lekin unlock na hua ho to **Claim** dabao. Warna coins se buy.
+- **Result:** Neon trail/head color change; sab localStorage (`snakepulse_save`) mein
 
 ### Settings / Ads stubs
 - **Kahan milega:** Home → **Settings**
@@ -92,7 +92,7 @@ Login nahi hai — koi email/password zaroori nahi.
 - **Blank screen:** `npm install` dubara; base path `/snakepulse/` check karo
 - **Controls kaam nahi:** Play screen active ho; pause overlay band karo
 - **PWA offline nahi:** pehle online load karo taake service worker cache ho
-- **Skins unlock nahi:** best score milestone ya coins poore hone chahiye
+- **Skins unlock nahi:** Best line pe progress dekho; Claim (score) ya Buy (coins enough) use karo
 - **Tests fail:** Node 20+; `npm test` project root se chalao
 
 ## 8. Security / privacy tips

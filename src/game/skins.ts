@@ -30,3 +30,91 @@ export function canUnlock(skin: Skin, bestScore: number, coins: number, unlocked
   if (coins >= skin.coinCost && skin.coinCost > 0) return true;
   return false;
 }
+
+/** Score milestone reached but skin not yet in unlocked list → Claim CTA. */
+export function isClaimableByScore(skin: Skin, bestScore: number, unlocked: string[]): boolean {
+  if (unlocked.includes(skin.id)) return false;
+  if (skin.scoreUnlock <= 0) return false;
+  return bestScore >= skin.scoreUnlock;
+}
+
+/** Coins path available and affordable (not already unlocked / claimable by score). */
+export function canAffordBuy(skin: Skin, coins: number, unlocked: string[]): boolean {
+  if (unlocked.includes(skin.id)) return false;
+  if (skin.coinCost <= 0) return false;
+  return coins >= skin.coinCost;
+}
+
+export type SkinCardKind = 'equipped' | 'unlocked' | 'claim' | 'free' | 'locked';
+
+export interface SkinCardDisplay {
+  kind: SkinCardKind;
+  /** Primary status / CTA line (Equipped, Unlocked, Claim, Free, or empty when locked). */
+  statusLabel: string;
+  /** Progress line for locked skins: Best {best}/{scoreUnlock} */
+  progressLine: string | null;
+  /** Buy line when coin path exists: Buy {cost} (you have {coins}) */
+  buyLine: string | null;
+  /** Highlight Buy affordance when coins >= coinCost. */
+  buyAffordable: boolean;
+}
+
+export function skinCardDisplay(
+  skin: Skin,
+  bestScore: number,
+  coins: number,
+  unlocked: string[],
+  selectedSkin: string,
+): SkinCardDisplay {
+  const isUnlocked = unlocked.includes(skin.id);
+
+  if (isUnlocked && selectedSkin === skin.id) {
+    return {
+      kind: 'equipped',
+      statusLabel: 'Equipped',
+      progressLine: null,
+      buyLine: null,
+      buyAffordable: false,
+    };
+  }
+  if (isUnlocked) {
+    return {
+      kind: 'unlocked',
+      statusLabel: 'Unlocked',
+      progressLine: null,
+      buyLine: null,
+      buyAffordable: false,
+    };
+  }
+  if (skin.scoreUnlock === 0 && skin.coinCost === 0) {
+    return {
+      kind: 'free',
+      statusLabel: 'Free',
+      progressLine: null,
+      buyLine: null,
+      buyAffordable: false,
+    };
+  }
+  if (isClaimableByScore(skin, bestScore, unlocked)) {
+    return {
+      kind: 'claim',
+      statusLabel: 'Claim',
+      progressLine: `Best ${bestScore}/${skin.scoreUnlock}`,
+      buyLine: null,
+      buyAffordable: false,
+    };
+  }
+
+  const progressLine = `Best ${bestScore}/${skin.scoreUnlock}`;
+  const buyLine =
+    skin.coinCost > 0 ? `Buy ${skin.coinCost} (you have ${coins})` : null;
+  const buyAffordable = canAffordBuy(skin, coins, unlocked);
+
+  return {
+    kind: 'locked',
+    statusLabel: '',
+    progressLine,
+    buyLine,
+    buyAffordable,
+  };
+}

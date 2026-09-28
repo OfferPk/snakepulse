@@ -9,9 +9,14 @@ import {
   tick,
 } from './game/engine';
 import { buySkin, loadPersist, recordRun, savePersist, unlockSkin } from './game/persist';
-import { SKINS, canUnlock, skinById } from './game/skins';
+import { SKINS, canUnlock, skinById, skinCardDisplay } from './game/skins';
 import type { Dir, GameState } from './game/types';
-import { purchaseRemoveAds, showInterstitial, showRewarded } from './ads/stubs';
+import {
+  purchaseRemoveAds,
+  setInterstitialPresenter,
+  showInterstitial,
+  showRewarded,
+} from './ads/stubs';
 import { drawFrame, resizeCanvas } from './render/canvas';
 
 type Screen = 'home' | 'howto' | 'skins' | 'settings' | 'play';
@@ -75,21 +80,39 @@ function renderSkins(): void {
   for (const skin of SKINS) {
     const unlocked = persist.unlockedSkins.includes(skin.id);
     const eligible = canUnlock(skin, persist.bestScore, persist.coins, persist.unlockedSkins);
+    const display = skinCardDisplay(
+      skin,
+      persist.bestScore,
+      persist.coins,
+      persist.unlockedSkins,
+      persist.selectedSkin,
+    );
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.className = `skin-card${persist.selectedSkin === skin.id ? ' selected' : ''}${
-      unlocked ? '' : ' locked'
-    }`;
+    const classes = ['skin-card'];
+    if (persist.selectedSkin === skin.id) classes.push('selected');
+    if (!unlocked) classes.push('locked');
+    if (display.kind === 'claim') classes.push('claimable');
+    if (display.buyAffordable) classes.push('can-buy');
+    btn.className = classes.join(' ');
+
+    const metaParts: string[] = [];
+    if (display.progressLine) {
+      metaParts.push(`<div class="skin-meta-line">${display.progressLine}</div>`);
+    }
+    if (display.buyLine) {
+      metaParts.push(
+        `<div class="skin-meta-line skin-buy${display.buyAffordable ? ' buy-affordable' : ''}">${display.buyLine}</div>`,
+      );
+    }
+    if (display.statusLabel) {
+      metaParts.push(`<div class="skin-meta-line skin-cta">${display.statusLabel}</div>`);
+    }
+
     btn.innerHTML = `
       <div class="skin-swatch" style="background:linear-gradient(90deg,${skin.head},${skin.body})"></div>
       <div class="skin-name">${skin.name}</div>
-      <div class="skin-meta">${
-        unlocked
-          ? 'Unlocked'
-          : skin.scoreUnlock === 0
-            ? 'Free'
-            : `Score ${skin.scoreUnlock} or ${skin.coinCost} coins`
-      }</div>`;
+      <div class="skin-meta">${metaParts.join('')}</div>`;
     btn.addEventListener('click', () => {
       persist = loadPersist();
       if (persist.unlockedSkins.includes(skin.id)) {
@@ -101,7 +124,7 @@ function renderSkins(): void {
       if (persist.bestScore >= skin.scoreUnlock && skin.scoreUnlock > 0) {
         persist = unlockSkin(skin.id);
         persist = savePersist({ selectedSkin: skin.id });
-        toast(`Unlocked ${skin.name}`);
+        toast(`Claimed ${skin.name}`);
         renderSkins();
         return;
       }
@@ -197,6 +220,7 @@ function startGame(): void {
   const skin = skinById(persist.selectedSkin);
   state = createGame({ botCount: 4 }, skin.head);
   $('#overlay-dead').hidden = true;
+  $('#overlay-interstitial').hidden = true;
   $('#overlay-pause').hidden = true;
   showScreen('play');
   layoutCanvas();
@@ -257,6 +281,25 @@ function bindInput(): void {
 }
 
 function wireUi(): void {
+  setInterstitialPresenter(async (reason) => {
+    const reasonEl = $('#interstitial-reason');
+    reasonEl.textContent =
+      reason === 'death'
+        ? 'Ad placeholder (stub) — after death.'
+        : 'Ad placeholder (stub) — no real network ad.';
+    const overlay = $('#overlay-interstitial');
+    overlay.hidden = false;
+    await new Promise<void>((resolve) => {
+      const cont = $('#btn-interstitial-continue');
+      const done = () => {
+        cont.removeEventListener('click', done);
+        overlay.hidden = true;
+        resolve();
+      };
+      cont.addEventListener('click', done);
+    });
+  });
+
   $('#btn-play').addEventListener('click', () => startGame());
   $('#btn-howto').addEventListener('click', () => showScreen('howto'));
   $('#btn-howto-ok').addEventListener('click', () => showScreen('home'));
