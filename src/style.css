@@ -50,6 +50,7 @@ button:focus-visible, select:focus-visible {
 
 .screen { flex: 1; display: flex; flex-direction: column; }
 .screen[hidden] { display: none !important; }
+.screen:not([data-screen="play"]) > .panel { width: 100%; margin-block: auto; }
 
 .panel {
   position: relative;
@@ -195,7 +196,7 @@ button:focus-visible, select:focus-visible {
 .pressure-meter span:nth-child(4) { height: 100%; }
 .pressure-meter span.active { background: linear-gradient(180deg, var(--magenta), var(--cyan)); box-shadow: 0 0 8px rgba(34, 211, 238, 0.32); }
 .setting-row select {
-  min-width: 132px;
+  min-width: 144px;
   padding: 10px 30px 10px 10px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -416,7 +417,7 @@ button:focus-visible, select:focus-visible {
   .play-bar { gap: 5px; }
   .play-bar .btn { padding-inline: 6px; font-size: 0.9rem; }
   .setting-row { gap: 8px; padding: 10px; }
-  .setting-row select { min-width: 112px; padding-inline: 8px 22px; font-size: 0.86rem; }
+  .setting-row select { min-width: 112px; padding-inline: 8px 22px; font-size: 0.78rem; }
   .pressure-preview { align-items: flex-start; flex-direction: column; gap: 5px; }
   .pressure-meter { width: 68px; }
 }
