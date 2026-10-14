@@ -53,7 +53,7 @@ describe('modal dialog keyboard focus', () => {
     expect(dialogTabTargetIndex(0, 3, true)).toBe(2);
   });
 
-  it('moves focus back inside when it is outside the dialog', () => {
+  it('moves Tab from a non-tabbable dialog heading into the result actions', () => {
     expect(dialogTabTargetIndex(-1, 3, false)).toBe(0);
     expect(dialogTabTargetIndex(-1, 3, true)).toBe(2);
   });

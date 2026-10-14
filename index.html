@@ -120,7 +120,7 @@
 
         <div id="overlay-dead" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="dead-title" tabindex="-1">
           <div class="panel">
-            <h2 id="dead-title">Pulse lost</h2>
+            <h2 id="dead-title" class="dialog-title" tabindex="-1">Pulse lost</h2>
             <p id="dead-record" class="result-record" role="status" aria-live="polite" aria-atomic="true" hidden></p>
             <div class="result-stats" role="group" aria-label="Run results">
               <div class="result-stat result-stat-score"><span class="result-stat-label">Score</span><strong id="dead-score">0</strong></div>
@@ -128,10 +128,12 @@
               <div class="result-stat"><span class="result-stat-label">Length</span><strong id="dead-length">4</strong></div>
               <div class="result-stat result-stat-coins"><span class="result-stat-label">Coins earned</span><strong id="dead-coins">+0</strong></div>
             </div>
-            <button type="button" class="btn primary" id="btn-retry">Retry</button>
-            <button type="button" class="btn secondary" id="btn-share">Share</button>
-            <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
-            <button type="button" class="btn ghost" id="btn-dead-home">Home</button>
+            <div class="result-actions" role="group" aria-label="Result actions">
+              <button type="button" class="btn primary" id="btn-retry">Retry</button>
+              <button type="button" class="btn secondary" id="btn-share">Share</button>
+              <button type="button" class="btn ghost" id="btn-dead-home">Home</button>
+              <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
+            </div>
           </div>
         </div>
 

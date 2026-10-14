@@ -346,7 +346,7 @@ async function onDeath(): Promise<void> {
     ? 'Continue used'
     : 'Watch to continue (stub)';
   $('#overlay-dead').hidden = false;
-  $('#btn-retry').focus();
+  $('#dead-title').focus();
   paint();
 }
 

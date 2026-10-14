@@ -14,7 +14,7 @@
       <section class="screen" data-screen="play">
         <div id="overlay-dead" class="overlay" role="dialog" aria-modal="true" aria-labelledby="dead-title" tabindex="-1">
           <div class="panel">
-            <h2 id="dead-title">Pulse lost</h2>
+            <h2 id="dead-title" class="dialog-title" tabindex="-1">Pulse lost</h2>
             <p id="dead-record" class="result-record" role="status" aria-live="polite" aria-atomic="true" hidden></p>
             <div class="result-stats" role="group" aria-label="Run results">
               <div class="result-stat result-stat-score"><span class="result-stat-label">Score</span><strong id="dead-score">0</strong></div>
@@ -22,9 +22,12 @@
               <div class="result-stat"><span class="result-stat-label">Length</span><strong>15</strong></div>
               <div class="result-stat result-stat-coins"><span class="result-stat-label">Coins earned</span><strong>+6</strong></div>
             </div>
-            <button type="button" class="btn primary">Retry</button>
-            <button type="button" class="btn secondary">Share</button>
-            <button type="button" class="btn ghost">Home</button>
+            <div class="result-actions" role="group" aria-label="Result actions">
+              <button type="button" class="btn primary">Retry</button>
+              <button type="button" class="btn secondary">Share</button>
+              <button type="button" class="btn ghost">Home</button>
+              <button type="button" class="btn secondary">Watch to continue (stub)</button>
+            </div>
           </div>
         </div>
       </section>
@@ -44,6 +47,7 @@
         requestAnimationFrame(celebrate);
       });
       celebrate();
+      document.querySelector('#dead-title').focus();
     </script>
   </body>
 </html>
