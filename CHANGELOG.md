@@ -14,6 +14,7 @@
 - **Audio feedback:** optional locally synthesized pickup, pulse, and crash cues now make the existing sound toggle functional.
 - **Interface polish:** clearer controls/help copy, accessible sound-toggle state and keyboard focus, plus a compact settings control and reduced-motion-friendly transitions.
 - **Keyboard pause:** Escape or P pauses/resumes a run, with focus moved to the pause controls for keyboard users; held-key repeats are ignored to prevent accidental toggling.
+- **Accessible gameplay dialogs:** pause, death, and interstitial overlays are labeled modal dialogs with contained Tab navigation and focus placed on the primary action.
 
 ## 0.1.2 — 2026-09-28
 

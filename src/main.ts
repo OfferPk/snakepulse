@@ -9,7 +9,7 @@ import {
   tick,
 } from './game/engine';
 import { pauseGameWhenHidden } from './game/lifecycle';
-import { pauseShortcutAction } from './game/controls';
+import { dialogTabTargetIndex, pauseShortcutAction } from './game/controls';
 import {
   buySkin,
   isHowtoSeen,
@@ -224,6 +224,26 @@ function stopLoop(): void {
   raf = 0;
 }
 
+function trapOverlayTab(event: KeyboardEvent): void {
+  const overlay = document.querySelector<HTMLElement>('.overlay:not([hidden])');
+  if (!overlay) return;
+  const focusable = Array.from(
+    overlay.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true');
+  if (focusable.length === 0) {
+    event.preventDefault();
+    overlay.focus();
+    return;
+  }
+  const activeIndex = focusable.indexOf(document.activeElement as HTMLElement);
+  const targetIndex = dialogTabTargetIndex(activeIndex, focusable.length, event.shiftKey);
+  if (targetIndex === null) return;
+  event.preventDefault();
+  focusable[targetIndex].focus();
+}
+
 function startLoop(): void {
   stopLoop();
   running = true;
@@ -278,6 +298,7 @@ async function onDeath(): Promise<void> {
     ? 'Continue used'
     : 'Watch to continue (stub)';
   $('#overlay-dead').hidden = false;
+  $('#btn-retry').focus();
   paint();
 }
 
@@ -290,6 +311,7 @@ function startGame(): void {
   $('#overlay-interstitial').hidden = true;
   $('#overlay-pause').hidden = true;
   showScreen('play');
+  $('#btn-pause').focus();
   layoutCanvas();
   refreshHud();
   paint();
@@ -321,6 +343,10 @@ function bindInput(): void {
   });
 
   window.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      trapOverlayTab(e);
+      return;
+    }
     if (!state) return;
     const pauseAction = pauseShortcutAction(e.key, state.phase, e.repeat);
     if (pauseAction === 'pause') {
@@ -377,6 +403,7 @@ function wireUi(): void {
     overlay.hidden = false;
     await new Promise<void>((resolve) => {
       const cont = $('#btn-interstitial-continue');
+      cont.focus();
       const done = () => {
         cont.removeEventListener('click', done);
         overlay.hidden = true;
@@ -443,6 +470,7 @@ function wireUi(): void {
     state = null;
     $('#overlay-pause').hidden = true;
     showScreen('home');
+    $('#btn-play').focus();
   });
 
   $('#btn-retry').addEventListener('click', () => startGame());
@@ -451,6 +479,7 @@ function wireUi(): void {
     state = null;
     $('#overlay-dead').hidden = true;
     showScreen('home');
+    $('#btn-play').focus();
   });
   $('#btn-continue').addEventListener('click', async () => {
     if (!state || state.continued) return;
@@ -459,6 +488,7 @@ function wireUi(): void {
     if (continueRun(state)) {
       $('#overlay-dead').hidden = true;
       lastTick = performance.now();
+      $('#btn-pause').focus();
       startLoop();
       toast('Continued (stub reward)');
     }

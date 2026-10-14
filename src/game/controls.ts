@@ -14,3 +14,14 @@ export function pauseShortcutAction(
   if (phase === 'paused') return 'resume';
   return null;
 }
+
+/** Return the focus index to use when Tab would otherwise leave a modal dialog. */
+export function dialogTabTargetIndex(
+  activeIndex: number,
+  focusableCount: number,
+  shiftKey: boolean,
+): number | null {
+  if (focusableCount <= 0) return null;
+  if (shiftKey) return activeIndex <= 0 ? focusableCount - 1 : null;
+  return activeIndex < 0 || activeIndex === focusableCount - 1 ? 0 : null;
+}
