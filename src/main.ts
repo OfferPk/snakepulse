@@ -149,6 +149,11 @@ function refreshHud(): void {
   const scoreElement = $('#hud-score');
   if (scoreElement.textContent !== score) scoreElement.textContent = score;
   if (lastAnnouncedScore !== state.score) {
+    if (lastAnnouncedScore !== null && state.score > lastAnnouncedScore) {
+      scoreElement.classList.remove('score-pop');
+      void scoreElement.offsetWidth;
+      scoreElement.classList.add('score-pop');
+    }
     $('#game-announcer').textContent =
       lastAnnouncedScore === null
         ? `Game started. Score ${state.score}.`

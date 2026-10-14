@@ -305,6 +305,12 @@ button:focus-visible, select:focus-visible {
 }
 .hud-stat .lbl { display: block; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
 .hud-stat span:last-child { font-weight: 700; color: var(--cyan); }
+.hud-stat #hud-score { display: inline-block; transform-origin: center; }
+.hud-stat #hud-score.score-pop { animation: score-pop 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes score-pop {
+  0%, 100% { color: var(--cyan); text-shadow: 0 0 0 rgba(34, 211, 238, 0); transform: scale(1); }
+  42% { color: #cffafe; text-shadow: 0 0 12px rgba(34, 211, 238, 0.82); transform: scale(1.28); }
+}
 
 .board-wrap {
   flex: 1;
