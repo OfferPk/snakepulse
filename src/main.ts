@@ -60,6 +60,11 @@ function showScreen(
   document.querySelectorAll<HTMLElement>('.screen').forEach((el) => {
     el.hidden = el.dataset.screen !== name;
   });
+  const installHint = $('#a2hs');
+  installHint.hidden =
+    name !== 'home' ||
+    sessionStorage.getItem('snakepulse_a2hs') === '1' ||
+    window.matchMedia('(display-mode: standalone)').matches;
   if (name === 'home') refreshHome();
   if (name === 'skins') renderSkins();
   if (name === 'settings') refreshSettings();
