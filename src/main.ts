@@ -10,6 +10,7 @@ import {
 } from './game/engine';
 import { pauseGameWhenHidden } from './game/lifecycle';
 import { dialogTabTargetIndex, pauseShortcutAction } from './game/controls';
+import { screenFocusTarget, type Screen } from './game/screen-focus';
 import {
   buySkin,
   isHowtoSeen,
@@ -32,8 +33,6 @@ import { drawFrame, resizeCanvas } from './render/canvas';
 import { playGameSound, unlockGameAudio } from './game/sound';
 import type { SoundCue } from './game/sound';
 
-type Screen = 'home' | 'howto' | 'skins' | 'settings' | 'play';
-
 const TICK_MS = 55;
 
 let persist = loadPersist();
@@ -44,13 +43,18 @@ let running = false;
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 
-function showScreen(name: Screen): void {
+function showScreen(
+  name: Screen,
+  shouldFocus = true,
+  focusTarget = screenFocusTarget(name),
+): void {
   document.querySelectorAll<HTMLElement>('.screen').forEach((el) => {
     el.hidden = el.dataset.screen !== name;
   });
   if (name === 'home') refreshHome();
   if (name === 'skins') renderSkins();
   if (name === 'settings') refreshSettings();
+  if (shouldFocus) $(focusTarget).focus();
 }
 
 function toast(msg: string): void {
@@ -417,12 +421,12 @@ function wireUi(): void {
   $('#btn-howto').addEventListener('click', () => showScreen('howto'));
   $('#btn-howto-ok').addEventListener('click', () => {
     markHowtoSeen();
-    showScreen('home');
+    showScreen('home', true, '#btn-howto');
   });
   $('#btn-skins').addEventListener('click', () => showScreen('skins'));
-  $('#btn-skins-back').addEventListener('click', () => showScreen('home'));
+  $('#btn-skins-back').addEventListener('click', () => showScreen('home', true, '#btn-skins'));
   $('#btn-settings').addEventListener('click', () => showScreen('settings'));
-  $('#btn-settings-back').addEventListener('click', () => showScreen('home'));
+  $('#btn-settings-back').addEventListener('click', () => showScreen('home', true, '#btn-settings'));
 
   $('#btn-mute').addEventListener('click', () => {
     persist = savePersist({ mute: !loadPersist().mute });
@@ -522,9 +526,9 @@ function wireUi(): void {
 bindInput();
 wireUi();
 if (!isHowtoSeen()) {
-  showScreen('howto');
+  showScreen('howto', false);
 } else {
-  showScreen('home');
+  showScreen('home', false);
 }
 
 if ('serviceWorker' in navigator) {
