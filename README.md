@@ -23,7 +23,7 @@ npm run preview
 ## Features (v0.1.0)
 
 - Canvas arena with neon grid + hard walls
-- Player snake: swipe / arrow keys / turn buttons
+- Player snake: swipe / arrow keys / turn buttons; **Escape** or **P** pauses/resumes
 - Pellets + rare gold **pulse** speed pickup
 - 3–6 local AI bots (seek pellets, avoid walls; respawn)
 - Adjustable arena pressure: choose 3–6 bots, saved locally

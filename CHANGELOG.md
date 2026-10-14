@@ -13,6 +13,7 @@
 - **Run customization:** choose 3–6 local bots in Settings; the preference is saved offline and applied to each new run.
 - **Audio feedback:** optional locally synthesized pickup, pulse, and crash cues now make the existing sound toggle functional.
 - **Interface polish:** clearer controls/help copy, accessible sound-toggle state and keyboard focus, plus a compact settings control and reduced-motion-friendly transitions.
+- **Keyboard pause:** Escape or P pauses/resumes a run, with focus moved to the pause controls for keyboard users.
 
 ## 0.1.2 — 2026-09-28
 

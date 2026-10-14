@@ -9,6 +9,7 @@ import {
   tick,
 } from './game/engine';
 import { pauseGameWhenHidden } from './game/lifecycle';
+import { pauseShortcutAction } from './game/controls';
 import {
   buySkin,
   isHowtoSeen,
@@ -320,7 +321,26 @@ function bindInput(): void {
   });
 
   window.addEventListener('keydown', (e) => {
-    if (!state || state.phase !== 'playing') return;
+    if (!state) return;
+    const pauseAction = pauseShortcutAction(e.key, state.phase);
+    if (pauseAction === 'pause') {
+      e.preventDefault();
+      pauseGame(state);
+      stopLoop();
+      $('#overlay-pause').hidden = false;
+      $('#btn-resume').focus();
+      return;
+    }
+    if (pauseAction === 'resume') {
+      e.preventDefault();
+      resumeGame(state);
+      $('#overlay-pause').hidden = true;
+      lastTick = performance.now();
+      $('#btn-pause').focus();
+      startLoop();
+      return;
+    }
+    if (state.phase !== 'playing') return;
     const map: Record<string, Dir> = {
       ArrowUp: 'U',
       ArrowDown: 'D',
@@ -408,12 +428,14 @@ function wireUi(): void {
     if (!state || state.phase !== 'playing') return;
     pauseGame(state);
     $('#overlay-pause').hidden = false;
+    $('#btn-resume').focus();
   });
   $('#btn-resume').addEventListener('click', () => {
     if (!state) return;
     resumeGame(state);
     $('#overlay-pause').hidden = true;
     lastTick = performance.now();
+    $('#btn-pause').focus();
     startLoop();
   });
   $('#btn-pause-home').addEventListener('click', () => {
@@ -463,6 +485,7 @@ function wireUi(): void {
     if (!pauseGameWhenHidden(state, document.hidden)) return;
     stopLoop();
     $('#overlay-pause').hidden = false;
+    $('#btn-resume').focus();
   });
 }
 
