@@ -8,6 +8,7 @@ import {
   setPlayerDir,
   tick,
 } from './game/engine';
+import { pauseGameWhenHidden } from './game/lifecycle';
 import {
   buySkin,
   isHowtoSeen,
@@ -456,6 +457,12 @@ function wireUi(): void {
       layoutCanvas();
       paint();
     }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!pauseGameWhenHidden(state, document.hidden)) return;
+    stopLoop();
+    $('#overlay-pause').hidden = false;
   });
 }
 

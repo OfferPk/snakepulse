@@ -9,6 +9,7 @@
 ## Unreleased
 
 ### Improved
+- **Background safety:** active runs auto-pause when the app or tab is hidden, preventing missed background frames from advancing into a sudden crash.
 - **Run customization:** choose 3–6 local bots in Settings; the preference is saved offline and applied to each new run.
 - **Audio feedback:** optional locally synthesized pickup, pulse, and crash cues now make the existing sound toggle functional.
 - **Interface polish:** clearer controls/help copy, accessible sound-toggle state and keyboard focus, plus a compact settings control and reduced-motion-friendly transitions.

@@ -35,7 +35,7 @@ npm run preview
 
 ## Persistence keys
 
-Prefix `snakepulse_`: `save` JSON with `bestScore`, `coins`, `unlockedSkins`, `selectedSkin`, `adsRemoved`, `mute`.
+Prefix `snakepulse_`: `save` JSON with `bestScore`, `coins`, `unlockedSkins`, `selectedSkin`, `adsRemoved`, `mute`, and `botCount`. The separate `snakepulse:howto` key remembers whether the first-run guide was dismissed.
 
 ## Stack
 
