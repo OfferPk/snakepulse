@@ -10,7 +10,11 @@ import {
   tick,
 } from './game/engine';
 import { pauseGameWhenHidden } from './game/lifecycle';
-import { dialogTabTargetIndex, pauseShortcutAction } from './game/controls';
+import {
+  dialogTabTargetIndex,
+  directionFromKey,
+  pauseShortcutAction,
+} from './game/controls';
 import { screenFocusTarget, type Screen } from './game/screen-focus';
 import {
   buySkin,
@@ -407,17 +411,7 @@ function bindInput(): void {
       return;
     }
     if (state.phase !== 'playing') return;
-    const map: Record<string, Dir> = {
-      ArrowUp: 'U',
-      ArrowDown: 'D',
-      ArrowLeft: 'L',
-      ArrowRight: 'R',
-      w: 'U',
-      s: 'D',
-      a: 'L',
-      d: 'R',
-    };
-    const dir = map[e.key];
+    const dir = directionFromKey(e.key);
     if (dir) {
       e.preventDefault();
       setPlayerDir(state, dir);

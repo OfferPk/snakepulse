@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { dialogTabTargetIndex, pauseShortcutAction } from '../src/game/controls';
+import {
+  dialogTabTargetIndex,
+  directionFromKey,
+  pauseShortcutAction,
+} from '../src/game/controls';
 
 describe('pause keyboard shortcuts', () => {
   it('pauses with Escape or P while playing', () => {
@@ -22,6 +26,24 @@ describe('pause keyboard shortcuts', () => {
     expect(pauseShortcutAction('ArrowUp', 'playing')).toBeNull();
     expect(pauseShortcutAction('Escape', 'dead')).toBeNull();
     expect(pauseShortcutAction('p', 'dead')).toBeNull();
+  });
+});
+
+describe('keyboard steering', () => {
+  it('maps arrow keys and WASD in either letter case', () => {
+    expect(directionFromKey('ArrowUp')).toBe('U');
+    expect(directionFromKey('ArrowDown')).toBe('D');
+    expect(directionFromKey('ArrowLeft')).toBe('L');
+    expect(directionFromKey('ArrowRight')).toBe('R');
+    expect(directionFromKey('w')).toBe('U');
+    expect(directionFromKey('A')).toBe('L');
+    expect(directionFromKey('s')).toBe('D');
+    expect(directionFromKey('D')).toBe('R');
+  });
+
+  it('ignores keys that are not steering controls', () => {
+    expect(directionFromKey('Enter')).toBeNull();
+    expect(directionFromKey('x')).toBeNull();
   });
 });
 

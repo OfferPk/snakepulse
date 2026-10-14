@@ -1,4 +1,4 @@
-import type { GamePhase } from './types';
+import type { Dir, GamePhase } from './types';
 
 export type PauseShortcutAction = 'pause' | 'resume' | null;
 
@@ -13,6 +13,22 @@ export function pauseShortcutAction(
   if (phase === 'playing') return 'pause';
   if (phase === 'paused') return 'resume';
   return null;
+}
+
+const KEY_DIRECTIONS: Record<string, Dir> = {
+  ArrowUp: 'U',
+  ArrowDown: 'D',
+  ArrowLeft: 'L',
+  ArrowRight: 'R',
+  w: 'U',
+  s: 'D',
+  a: 'L',
+  d: 'R',
+};
+
+/** Map arrow or WASD input to a direction, accepting either WASD letter case. */
+export function directionFromKey(key: string): Dir | null {
+  return KEY_DIRECTIONS[key] ?? KEY_DIRECTIONS[key.toLowerCase()] ?? null;
 }
 
 /** Return the focus index to use when Tab would otherwise leave a modal dialog. */
