@@ -389,8 +389,10 @@ button:focus-visible, select:focus-visible {
 
 .a2hs {
   position: fixed;
-  left: max(12px, env(safe-area-inset-left));
-  right: max(12px, env(safe-area-inset-right));
+  width: min(480px, calc(100vw - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+  left: calc(50% + (env(safe-area-inset-left) - env(safe-area-inset-right)) / 2);
+  right: auto;
+  transform: translateX(-50%);
   bottom: calc(12px + env(safe-area-inset-bottom));
   background: #0f172a; border: 1px solid var(--border);
   border-radius: 12px; padding: 10px 12px;
