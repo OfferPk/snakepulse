@@ -20,7 +20,7 @@ import {
   savePersist,
   unlockSkin,
 } from './game/persist';
-import { buildDeathShareText } from './game/share';
+import { buildDeathShareText, shouldCopyAfterShareError } from './game/share';
 import { SKINS, canUnlock, skinById, skinCardDisplay } from './game/skins';
 import type { Dir, GameState } from './game/types';
 import {
@@ -66,32 +66,34 @@ function toast(msg: string): void {
   }, 1800);
 }
 
-function legacyCopy(text: string): void {
+function legacyCopy(text: string): boolean {
+  let copied = false;
+  let ta: HTMLTextAreaElement | null = null;
   try {
-    const ta = document.createElement('textarea');
+    ta = document.createElement('textarea');
     ta.value = text;
     ta.style.position = 'fixed';
     ta.style.left = '-9999px';
     document.body.appendChild(ta);
     ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    copied = document.execCommand('copy');
   } catch {
-    /* ignore */
+    copied = false;
+  } finally {
+    ta?.remove();
   }
+  return copied;
 }
 
 function copyShare(text: string): void {
-  const done = () => toast('Copied share text');
+  const fallbackCopy = () => {
+    toast(legacyCopy(text) ? 'Copied share text' : 'Could not copy share text');
+  };
   if (navigator.clipboard?.writeText) {
-    void navigator.clipboard.writeText(text).then(done).catch(() => {
-      legacyCopy(text);
-      done();
-    });
+    void navigator.clipboard.writeText(text).then(() => toast('Copied share text')).catch(fallbackCopy);
     return;
   }
-  legacyCopy(text);
-  done();
+  fallbackCopy();
 }
 
 function shareDeath(): void {
@@ -100,8 +102,8 @@ function shareDeath(): void {
   const best = Math.max(persist.bestScore, state.score);
   const text = buildDeathShareText(state.score, best, skin.name);
   if (navigator.share) {
-    void navigator.share({ title: 'SnakePulse', text }).catch(() => {
-      copyShare(text);
+    void navigator.share({ title: 'SnakePulse', text }).catch((error: unknown) => {
+      if (shouldCopyAfterShareError(error)) copyShare(text);
     });
     return;
   }
