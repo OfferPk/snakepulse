@@ -27,6 +27,8 @@ import {
   showRewarded,
 } from './ads/stubs';
 import { drawFrame, resizeCanvas } from './render/canvas';
+import { playGameSound, unlockGameAudio } from './game/sound';
+import type { SoundCue } from './game/sound';
 
 type Screen = 'home' | 'howto' | 'skins' | 'settings' | 'play';
 
@@ -109,6 +111,8 @@ function refreshHome(): void {
 function refreshSettings(): void {
   persist = loadPersist();
   $('#btn-mute').textContent = persist.mute ? '🔇 Sound off' : '🔊 Sound on';
+  $('#btn-mute').setAttribute('aria-pressed', String(!persist.mute));
+  ($('#bot-count') as HTMLSelectElement).value = String(persist.botCount);
   $('#ads-status').textContent = persist.adsRemoved
     ? 'Ads: removed (stub)'
     : 'Ads: enabled (placeholder)';
@@ -120,6 +124,7 @@ function refreshHud(): void {
   $('#hud-best').textContent = String(Math.max(persist.bestScore, state.score));
   $('#hud-len').textContent = String(state.length);
   $('#btn-mute-play').textContent = persist.mute ? '🔇' : '🔊';
+  $('#btn-mute-play').setAttribute('aria-pressed', String(!persist.mute));
 }
 
 function renderSkins(): void {
@@ -225,8 +230,14 @@ function startLoop(): void {
     if (!running || !state) return;
     let phase = state.phase;
     if (phase === 'playing') {
+      let soundCue: SoundCue | null = null;
       while (now - lastTick >= TICK_MS) {
+        const previousScore = state.score;
         tick(state);
+        if (state.phase === 'dead') soundCue = 'death';
+        else if (state.score > previousScore) {
+          soundCue = state.score - previousScore >= 5 ? 'pulse' : 'eat';
+        }
         lastTick += TICK_MS;
         phase = state.phase;
         if (phase !== 'playing') break;
@@ -234,9 +245,11 @@ function startLoop(): void {
       refreshHud();
       paint();
       if (phase === 'dead') {
+        if (soundCue) playGameSound(soundCue, persist.mute);
         void onDeath();
         return;
       }
+      if (soundCue) playGameSound(soundCue, persist.mute);
     } else {
       paint();
     }
@@ -268,8 +281,9 @@ async function onDeath(): Promise<void> {
 
 function startGame(): void {
   persist = loadPersist();
+  if (!persist.mute) unlockGameAudio();
   const skin = skinById(persist.selectedSkin);
-  state = createGame({ botCount: 4 }, skin.head);
+  state = createGame({ botCount: persist.botCount }, skin.head);
   $('#overlay-dead').hidden = true;
   $('#overlay-interstitial').hidden = true;
   $('#overlay-pause').hidden = true;
@@ -364,11 +378,18 @@ function wireUi(): void {
 
   $('#btn-mute').addEventListener('click', () => {
     persist = savePersist({ mute: !loadPersist().mute });
+    if (!persist.mute) unlockGameAudio();
     refreshSettings();
   });
   $('#btn-mute-play').addEventListener('click', () => {
     persist = savePersist({ mute: !loadPersist().mute });
+    if (!persist.mute) unlockGameAudio();
     refreshHud();
+  });
+  $('#bot-count').addEventListener('change', (event) => {
+    const botCount = Number((event.currentTarget as HTMLSelectElement).value);
+    persist = savePersist({ botCount });
+    toast(`Arena set to ${persist.botCount} bots`);
   });
   $('#btn-remove-ads').addEventListener('click', async () => {
     await purchaseRemoveAds();

@@ -26,6 +26,8 @@ npm run preview
 - Player snake: swipe / arrow keys / turn buttons
 - Pellets + rare gold **pulse** speed pickup
 - 3–6 local AI bots (seek pellets, avoid walls; respawn)
+- Adjustable arena pressure: choose 3–6 bots, saved locally
+- Optional synthesized pickup, pulse, and crash sounds (offline; muteable)
 - Death overlay: Retry · Watch-to-continue stub · Home
 - Interstitial + remove-ads stubs (no AdMob keys)
 - ≥6 offline skins via best-score milestones or coins (`localStorage`)

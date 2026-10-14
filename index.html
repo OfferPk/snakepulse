@@ -35,10 +35,10 @@
         <div class="panel">
           <h2>How to play</h2>
           <ul class="howto-list">
-            <li><strong>Swipe</strong> or tap left/right buttons to steer your neon snake.</li>
+            <li><strong>Swipe</strong>, use arrow/WASD keys, or tap left/right buttons to steer.</li>
             <li><strong>Eat</strong> cyan pellets to grow. Gold pellets give a short speed pulse.</li>
             <li><strong>Hard walls</strong> — hitting the border ends the run.</li>
-            <li><strong>Local AI bots</strong> share the arena (offline only). Hitting a body ends your run.</li>
+            <li><strong>Local AI bots</strong> share the arena (offline only). Choose 3–6 bots in Settings; hitting a body ends your run.</li>
             <li><strong>Skins</strong> unlock from best score or coins — no live events.</li>
           </ul>
           <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
@@ -65,10 +65,22 @@
             <button type="button" class="icon-btn" id="btn-settings-back" aria-label="Back">←</button>
             <h2>Settings</h2>
           </header>
-          <button type="button" class="btn secondary block" id="btn-mute">🔊 Sound on</button>
+          <button type="button" class="btn secondary block" id="btn-mute" aria-pressed="true">🔊 Sound on</button>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="bot-count">Arena pressure</label>
+              <p class="hint-text">Choose how many local bots share each run.</p>
+            </div>
+            <select id="bot-count" aria-label="Number of local bots">
+              <option value="3">3 · Relaxed</option>
+              <option value="4">4 · Classic</option>
+              <option value="5">5 · Busy</option>
+              <option value="6">6 · Packed</option>
+            </select>
+          </div>
           <button type="button" class="btn secondary block" id="btn-remove-ads">Remove ads (stub)</button>
           <p class="hint-text" id="ads-status">Ads: enabled (placeholder)</p>
-          <p class="hint-text">Original neon pulse theme. Offline PWA. No real billing / AdMob keys in v0.1.</p>
+          <p class="hint-text">Sound effects are synthesized on your device. SnakePulse stays offline; ads and billing are placeholders only.</p>
         </div>
       </section>
 
@@ -86,7 +98,7 @@
         </div>
         <div class="play-bar">
           <button type="button" class="btn secondary" id="btn-turn-left">◀ Turn</button>
-          <button type="button" class="btn ghost" id="btn-mute-play">🔊</button>
+          <button type="button" class="btn ghost" id="btn-mute-play" aria-label="Toggle sound" aria-pressed="true">🔊</button>
           <button type="button" class="btn secondary" id="btn-turn-right">Turn ▶</button>
         </div>
 

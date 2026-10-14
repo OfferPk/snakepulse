@@ -22,6 +22,12 @@ html, body {
   user-select: none;
 }
 
+button, select { font: inherit; }
+button:focus-visible, select:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 3px;
+}
+
 #app {
   max-width: 480px;
   margin: 0 auto;
@@ -86,6 +92,33 @@ html, body {
 .btn.tiny { width: auto; padding: 6px 10px; font-size: 0.8rem; margin: 0; }
 .btn.block { width: 100%; }
 .btn:active { transform: scale(0.98); }
+.btn, .icon-btn, .skin-card, select { transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease, transform 100ms ease; }
+.btn:hover, .icon-btn:hover { border-color: rgba(34, 211, 238, 0.65); }
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin: 8px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(34, 211, 238, 0.045);
+  text-align: left;
+}
+.setting-copy { min-width: 0; }
+.setting-copy label { font-weight: 700; }
+.setting-copy .hint-text { margin: 4px 0 0; }
+.setting-row select {
+  min-width: 132px;
+  padding: 10px 30px 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0b1222;
+  color: var(--text);
+  cursor: pointer;
+}
 
 .subhead {
   display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
@@ -203,3 +236,13 @@ html, body {
 }
 .a2hs[hidden] { display: none !important; }
 .a2hs strong { color: var(--cyan); }
+
+@media (max-height: 700px) {
+  #app { padding-top: max(8px, env(safe-area-inset-top)); }
+  .home-panel { margin-top: 2vh; }
+  .board-wrap { min-height: 240px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
