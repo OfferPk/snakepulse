@@ -457,6 +457,7 @@ function wireUi(): void {
   $('#btn-pause').addEventListener('click', () => {
     if (!state || state.phase !== 'playing') return;
     pauseGame(state);
+    stopLoop();
     $('#overlay-pause').hidden = false;
     $('#btn-resume').focus();
   });
