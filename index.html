@@ -21,8 +21,11 @@
           <div class="logo-mark" aria-hidden="true"></div>
           <h1 class="logo">SnakePulse</h1>
           <p class="tagline">Neon endless snake. Grow, dodge local AI bots. Fully offline.</p>
-          <p class="meta-line">Best: <strong id="home-best">0</strong> · Coins: <strong id="home-coins">0</strong></p>
-          <p class="meta-line">Local practice arena — no online matchmaking.</p>
+          <div class="home-stats" role="group" aria-label="Your run stats">
+            <p class="home-stat"><span>Best score</span><strong id="home-best">0</strong></p>
+            <p class="home-stat"><span>Coins</span><strong id="home-coins">0</strong></p>
+          </div>
+          <p class="meta-line home-note">Local practice arena <span aria-hidden="true">·</span> no online matchmaking</p>
           <button type="button" class="btn primary" id="btn-play">Play</button>
           <button type="button" class="btn secondary" id="btn-skins">Skins</button>
           <button type="button" class="btn ghost" id="btn-howto">How to play</button>
