@@ -3,8 +3,8 @@ export type Screen = 'home' | 'howto' | 'skins' | 'settings' | 'play';
 const FOCUS_TARGETS: Record<Screen, string> = {
   home: '#btn-play',
   howto: '#howto-title',
-  skins: '#skins-title',
-  settings: '#settings-title',
+  skins: '#btn-skins-back',
+  settings: '#btn-settings-back',
   play: '#btn-pause',
 };
 

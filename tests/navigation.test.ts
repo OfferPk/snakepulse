@@ -7,9 +7,9 @@ describe('screen keyboard focus targets', () => {
     expect(screenFocusTarget('play')).toBe('#btn-pause');
   });
 
-  it('focuses the heading when entering informational screens', () => {
+  it('focuses screen context or the first navigation action on entry', () => {
     expect(screenFocusTarget('howto')).toBe('#howto-title');
-    expect(screenFocusTarget('skins')).toBe('#skins-title');
-    expect(screenFocusTarget('settings')).toBe('#settings-title');
+    expect(screenFocusTarget('skins')).toBe('#btn-skins-back');
+    expect(screenFocusTarget('settings')).toBe('#btn-settings-back');
   });
 });
