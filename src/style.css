@@ -241,7 +241,7 @@ button:focus-visible, select:focus-visible {
 .skin-card.selected { border-color: var(--magenta); box-shadow: 0 0 12px rgba(232, 121, 249, 0.3); }
 .skin-card[aria-pressed="true"] { background: linear-gradient(145deg, rgba(232, 121, 249, 0.09), rgba(15, 23, 42, 0.9)); }
 .skin-card:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-.skin-card.locked { opacity: 0.72; }
+.skin-card.locked .skin-swatch { opacity: 0.72; }
 .skin-card.can-buy {
   opacity: 1;
   border-color: var(--cyan);
@@ -439,6 +439,7 @@ button:focus-visible, select:focus-visible {
   .hud-stat { min-width: 48px; padding-inline: 5px; }
   .play-bar { gap: 5px; }
   .play-bar .btn { padding-inline: 6px; font-size: 0.9rem; }
+  .skin-status { max-width: 56%; padding: 3px 4px; font-size: 0.55rem; letter-spacing: 0.02em; }
   .setting-row { gap: 8px; padding: 10px; }
   .setting-row select { min-width: 112px; padding-inline: 8px 22px; font-size: 0.78rem; }
   .pressure-preview { align-items: flex-start; flex-direction: column; gap: 5px; }
