@@ -17,6 +17,7 @@
 - **Accessible gameplay dialogs:** pause, death, and interstitial overlays are labeled modal dialogs with contained Tab navigation and focus placed on the primary action.
 - **Screen navigation focus:** changing screens now moves keyboard focus to the new screen's heading or primary action; Back returns focus to the control that opened the screen.
 - **Share flow:** cancelling the native share sheet no longer triggers an unexpected clipboard copy, and fallback copying reports failure accurately.
+- **Notification timing:** showing a new toast restarts its dismissal timer so a prior message cannot hide it early.
 
 ## 0.1.2 — 2026-09-28
 

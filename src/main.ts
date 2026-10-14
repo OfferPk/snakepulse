@@ -1,4 +1,5 @@
 import './style.css';
+import { createToastPresenter } from './game/toast';
 import {
   continueRun,
   createGame,
@@ -42,6 +43,7 @@ let lastTick = 0;
 let running = false;
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
+const presentToast = createToastPresenter($('#toast'));
 
 function showScreen(
   name: Screen,
@@ -58,12 +60,7 @@ function showScreen(
 }
 
 function toast(msg: string): void {
-  const el = $('#toast');
-  el.textContent = msg;
-  el.hidden = false;
-  window.setTimeout(() => {
-    el.hidden = true;
-  }, 1800);
+  presentToast(msg);
 }
 
 function legacyCopy(text: string): boolean {
