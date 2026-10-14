@@ -434,6 +434,13 @@ button:focus-visible, select:focus-visible {
   #overlay-dead .panel > .btn { margin: 4px 0; }
 }
 
+@media (max-height: 500px) {
+  #overlay-dead .panel { padding: 12px; }
+  #overlay-dead .result-stats { gap: 4px; margin: 8px 0; }
+  #overlay-dead .result-stat { padding: 6px 8px; }
+  #overlay-dead .panel > .btn { margin: 2px 0; }
+}
+
 @media (max-width: 360px) {
   .hud { gap: 4px; }
   .hud-stat { min-width: 48px; padding-inline: 5px; }
