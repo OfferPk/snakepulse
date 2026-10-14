@@ -322,7 +322,7 @@ function bindInput(): void {
 
   window.addEventListener('keydown', (e) => {
     if (!state) return;
-    const pauseAction = pauseShortcutAction(e.key, state.phase);
+    const pauseAction = pauseShortcutAction(e.key, state.phase, e.repeat);
     if (pauseAction === 'pause') {
       e.preventDefault();
       pauseGame(state);

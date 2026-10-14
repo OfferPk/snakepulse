@@ -13,6 +13,11 @@ describe('pause keyboard shortcuts', () => {
     expect(pauseShortcutAction('p', 'paused')).toBe('resume');
   });
 
+  it('ignores held-key repeats while playing or paused', () => {
+    expect(pauseShortcutAction('p', 'playing', true)).toBeNull();
+    expect(pauseShortcutAction('Escape', 'paused', true)).toBeNull();
+  });
+
   it('ignores unrelated keys and finished runs', () => {
     expect(pauseShortcutAction('ArrowUp', 'playing')).toBeNull();
     expect(pauseShortcutAction('Escape', 'dead')).toBeNull();
