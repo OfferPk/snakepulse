@@ -411,6 +411,16 @@ button:focus-visible, select:focus-visible {
   #app { padding-top: max(8px, env(safe-area-inset-top)); }
   .home-panel { margin-block: 2vh; }
   .board-wrap { min-height: min(240px, 40dvh); }
+  .a2hs {
+    position: static;
+    width: 100%;
+    max-width: 480px;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    margin: 8px auto 0;
+  }
 }
 
 @media (max-width: 360px) {
