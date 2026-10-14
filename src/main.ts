@@ -41,6 +41,7 @@ let state: GameState | null = null;
 let raf = 0;
 let lastTick = 0;
 let running = false;
+let lastAnnouncedScore: number | null = null;
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
 const presentToast = createToastPresenter($('#toast'));
@@ -125,7 +126,16 @@ function refreshSettings(): void {
 
 function refreshHud(): void {
   if (!state) return;
-  $('#hud-score').textContent = String(state.score);
+  const score = String(state.score);
+  const scoreElement = $('#hud-score');
+  if (scoreElement.textContent !== score) scoreElement.textContent = score;
+  if (lastAnnouncedScore !== state.score) {
+    $('#game-announcer').textContent =
+      lastAnnouncedScore === null
+        ? `Game started. Score ${state.score}.`
+        : `Score ${state.score}.`;
+    lastAnnouncedScore = state.score;
+  }
   $('#hud-best').textContent = String(Math.max(persist.bestScore, state.score));
   $('#hud-len').textContent = String(state.length);
   $('#btn-mute-play').textContent = persist.mute ? '🔇' : '🔊';
@@ -313,6 +323,8 @@ function startGame(): void {
   $('#overlay-dead').hidden = true;
   $('#overlay-interstitial').hidden = true;
   $('#overlay-pause').hidden = true;
+  $('#game-announcer').textContent = '';
+  lastAnnouncedScore = null;
   showScreen('play');
   $('#btn-pause').focus();
   layoutCanvas();
@@ -526,7 +538,7 @@ function wireUi(): void {
 bindInput();
 wireUi();
 if (!isHowtoSeen()) {
-  showScreen('howto', false);
+  showScreen('howto');
 } else {
   showScreen('home', false);
 }

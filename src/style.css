@@ -32,7 +32,10 @@ button:focus-visible, select:focus-visible {
   max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
-  padding: 12px 12px 24px;
+  padding: max(12px, env(safe-area-inset-top))
+    max(12px, env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
 }
@@ -92,8 +95,22 @@ button:focus-visible, select:focus-visible {
 .btn.tiny { width: auto; padding: 6px 10px; font-size: 0.8rem; margin: 0; }
 .btn.block { width: 100%; }
 .btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.48; cursor: not-allowed; transform: none; }
 .btn, .icon-btn, .skin-card, select { transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease, transform 100ms ease; }
 .btn:hover, .icon-btn:hover { border-color: rgba(34, 211, 238, 0.65); }
+.screen h2[tabindex="-1"]:focus { outline: 2px solid var(--lime); outline-offset: 4px; border-radius: 3px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .setting-row {
   display: flex;
@@ -213,14 +230,18 @@ button:focus-visible, select:focus-visible {
   position: fixed; inset: 0;
   background: rgba(3, 7, 18, 0.72);
   display: flex; align-items: center; justify-content: center;
-  padding: 20px; z-index: 20;
+  padding: max(20px, env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+  z-index: 20;
 }
 .overlay[hidden] { display: none !important; }
 .overlay .panel { width: min(360px, 100%); text-align: center; }
 .go-meta { color: var(--muted); margin: 0 0 12px; }
 
 .toast {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
   background: #0f172a; border: 1px solid var(--border);
   color: var(--text); padding: 10px 14px; border-radius: 10px;
   z-index: 30; font-size: 0.9rem;
@@ -228,7 +249,10 @@ button:focus-visible, select:focus-visible {
 .toast[hidden] { display: none !important; }
 
 .a2hs {
-  position: fixed; left: 12px; right: 12px; bottom: 12px;
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(12px + env(safe-area-inset-bottom));
   background: #0f172a; border: 1px solid var(--border);
   border-radius: 12px; padding: 10px 12px;
   display: flex; gap: 10px; align-items: center;

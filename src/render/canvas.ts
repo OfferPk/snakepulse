@@ -1,4 +1,5 @@
-import type { GameState } from '../game/types';
+import { DIR_DELTA } from '../game/types';
+import type { Cell, Dir, GameState } from '../game/types';
 import { skinById } from '../game/skins';
 
 export function resizeCanvas(canvas: HTMLCanvasElement, cssSize: number): void {
@@ -7,6 +8,24 @@ export function resizeCanvas(canvas: HTMLCanvasElement, cssSize: number): void {
   canvas.style.height = `${cssSize}px`;
   canvas.width = Math.floor(cssSize * dpr);
   canvas.height = Math.floor(cssSize * dpr);
+}
+
+/** Return the two eye centers, offset toward the snake's travel direction. */
+export function headEyeCenters(
+  cx: number,
+  cy: number,
+  cell: number,
+  dir: Dir,
+): [Cell, Cell] {
+  const forward = DIR_DELTA[dir];
+  const side = { x: -forward.y, y: forward.x };
+  const forwardOffset = cell * 0.18;
+  const sideOffset = cell * 0.2;
+  const centerForSide = (sign: number): Cell => ({
+    x: cx + forward.x * forwardOffset + side.x * sideOffset * sign,
+    y: cy + forward.y * forwardOffset + side.y * sideOffset * sign,
+  });
+  return [centerForSide(-1), centerForSide(1)];
 }
 
 export function drawFrame(
@@ -91,6 +110,36 @@ export function drawFrame(
     ctx.arc(hx, hy, cell * 0.42, 0, Math.PI * 2);
     ctx.stroke();
     ctx.globalAlpha = 1;
+    drawEyes(ctx, hx, hy, cell, snake.dir);
+  }
+}
+
+function drawEyes(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  cell: number,
+  dir: Dir,
+): void {
+  const forward = DIR_DELTA[dir];
+  const radius = Math.max(1, cell * 0.075);
+  ctx.shadowBlur = 0;
+  for (const eye of headEyeCenters(cx, cy, cell, dir)) {
+    ctx.beginPath();
+    ctx.fillStyle = '#f8fafc';
+    ctx.arc(eye.x, eye.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = '#07111d';
+    ctx.arc(
+      eye.x + forward.x * radius * 0.35,
+      eye.y + forward.y * radius * 0.35,
+      radius * 0.48,
+      0,
+      Math.PI * 2,
+    );
+    ctx.fill();
   }
 }
 

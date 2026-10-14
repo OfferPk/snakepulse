@@ -88,9 +88,9 @@
       <section class="screen" data-screen="play" hidden>
         <header class="hud">
           <button type="button" class="icon-btn" id="btn-menu" aria-label="Menu">⌂</button>
-          <div class="hud-stat"><span class="lbl">Score</span><span id="hud-score">0</span></div>
-          <div class="hud-stat"><span class="lbl">Best</span><span id="hud-best">0</span></div>
-          <div class="hud-stat"><span class="lbl">Len</span><span id="hud-len">4</span></div>
+          <div class="hud-stat" role="group" aria-label="Score"><span class="lbl" aria-hidden="true">Score</span><span id="hud-score">0</span></div>
+          <div class="hud-stat" role="group" aria-label="Best score"><span class="lbl" aria-hidden="true">Best</span><span id="hud-best">0</span></div>
+          <div class="hud-stat" role="group" aria-label="Snake length"><span class="lbl" aria-hidden="true">Len</span><span id="hud-len">4</span></div>
           <button type="button" class="icon-btn" id="btn-pause" aria-label="Pause (Escape or P)" title="Pause (Escape or P)">❚❚</button>
         </header>
         <div class="board-wrap">
@@ -101,6 +101,7 @@
           <button type="button" class="btn ghost" id="btn-mute-play" aria-label="Toggle sound" aria-pressed="true">🔊</button>
           <button type="button" class="btn secondary" id="btn-turn-right">Turn ▶</button>
         </div>
+        <p id="game-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 
         <div id="overlay-interstitial" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="interstitial-title" tabindex="-1">
           <div class="panel">
