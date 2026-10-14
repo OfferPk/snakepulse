@@ -37,6 +37,7 @@ import {
 import { drawFrame, resizeCanvas } from './render/canvas';
 import { playGameSound, unlockGameAudio } from './game/sound';
 import type { SoundCue } from './game/sound';
+import { setPersonalBestBadge } from './game/results';
 
 const TICK_MS = 55;
 const ARENA_PRESSURE_SUMMARY: Record<number, string> = {
@@ -334,7 +335,7 @@ async function onDeath(): Promise<void> {
     }
   }
   await showInterstitial('death');
-  $('#dead-record').hidden = state.score <= previousBest;
+  setPersonalBestBadge($('#dead-record'), state.score, previousBest);
   $('#dead-score').textContent = String(state.score);
   $('#dead-best').textContent = String(persist.bestScore);
   $('#dead-length').textContent = String(state.length);
