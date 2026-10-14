@@ -421,6 +421,17 @@ button:focus-visible, select:focus-visible {
     transform: none;
     margin: 8px auto 0;
   }
+  #overlay-dead .panel { padding: 14px; }
+  #overlay-dead .result-stats { gap: 6px; margin: 10px 0 12px; }
+  #overlay-dead .result-stat { padding: 8px 10px; }
+  #overlay-dead .result-stat-coins {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #overlay-dead .result-stat-coins .result-stat-label { white-space: nowrap; }
+  #overlay-dead .panel > .btn { margin: 4px 0; }
 }
 
 @media (max-width: 360px) {
