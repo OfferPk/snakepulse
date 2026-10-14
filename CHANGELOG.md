@@ -9,6 +9,7 @@
 ## Unreleased
 
 ### Improved
+- **Personal-best celebration:** the new-record badge and score receive a brief, reduced-motion-safe entrance on the results screen.
 - **Background safety:** active runs auto-pause when the app or tab is hidden, preventing missed background frames from advancing into a sudden crash.
 - **Run customization:** choose 3–6 local bots in Settings; the preference is saved offline and applied to each new run.
 - **Audio feedback:** optional locally synthesized pickup, pulse, and crash cues now make the existing sound toggle functional.

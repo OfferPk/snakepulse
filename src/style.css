@@ -360,8 +360,22 @@ button:focus-visible, select:focus-visible {
   font-weight: 800;
   letter-spacing: 0.09em;
   text-transform: uppercase;
+  animation: record-badge-enter 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 .result-record[hidden] { display: none !important; }
+@keyframes record-badge-enter {
+  0% { opacity: 0; transform: translateY(7px) scale(0.88); box-shadow: 0 0 0 rgba(163, 230, 53, 0); }
+  65% { opacity: 1; transform: translateY(-1px) scale(1.04); box-shadow: 0 0 16px rgba(163, 230, 53, 0.2); }
+  100% { opacity: 1; transform: translateY(0) scale(1); box-shadow: 0 0 0 rgba(163, 230, 53, 0); }
+}
+.result-record:not([hidden]) + .result-stats .result-stat-score strong {
+  animation: result-score-arrive 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes result-score-arrive {
+  0% { color: var(--text); text-shadow: 0 0 0 rgba(34, 211, 238, 0); transform: scale(0.82); }
+  65% { color: #f0fdfa; text-shadow: 0 0 16px rgba(34, 211, 238, 0.68); transform: scale(1.1); }
+  100% { color: var(--cyan); text-shadow: 0 0 0 rgba(34, 211, 238, 0); transform: scale(1); }
+}
 .result-stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
