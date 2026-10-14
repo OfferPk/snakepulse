@@ -22,7 +22,7 @@ import {
   unlockSkin,
 } from './game/persist';
 import { buildDeathShareText, shouldCopyAfterShareError } from './game/share';
-import { SKINS, canUnlock, skinById, skinCardDisplay } from './game/skins';
+import { SKINS, canUnlock, skinById, skinCardDisplay, skinScoreProgress } from './game/skins';
 import type { Dir, GameState } from './game/types';
 import {
   purchaseRemoveAds,
@@ -35,6 +35,12 @@ import { playGameSound, unlockGameAudio } from './game/sound';
 import type { SoundCue } from './game/sound';
 
 const TICK_MS = 55;
+const ARENA_PRESSURE_SUMMARY: Record<number, string> = {
+  3: 'Relaxed · 3 bots',
+  4: 'Classic · 4 bots',
+  5: 'Busy · 5 bots',
+  6: 'Packed · 6 bots',
+};
 
 let persist = loadPersist();
 let state: GameState | null = null;
@@ -119,6 +125,10 @@ function refreshSettings(): void {
   $('#btn-mute').textContent = persist.mute ? '🔇 Sound off' : '🔊 Sound on';
   $('#btn-mute').setAttribute('aria-pressed', String(!persist.mute));
   ($('#bot-count') as HTMLSelectElement).value = String(persist.botCount);
+  $('#bot-count-summary').textContent = ARENA_PRESSURE_SUMMARY[persist.botCount] ?? ARENA_PRESSURE_SUMMARY[4]!;
+  document.querySelectorAll<HTMLElement>('#bot-pressure-meter span').forEach((segment, index) => {
+    segment.classList.toggle('active', index < persist.botCount - 2);
+  });
   $('#ads-status').textContent = persist.adsRemoved
     ? 'Ads: removed (stub)'
     : 'Ads: enabled (placeholder)';
@@ -158,6 +168,10 @@ function renderSkins(): void {
       persist.unlockedSkins,
       persist.selectedSkin,
     );
+    const scoreProgress = skinScoreProgress(skin, persist.bestScore);
+    const progressMarkup = display.progressLine && scoreProgress !== null
+      ? `<div class="skin-progress" role="progressbar" aria-label="${skin.name} score unlock progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scoreProgress}"><span class="skin-progress-fill" style="width:${scoreProgress}%"></span></div>`
+      : '';
     const btn = document.createElement('button');
     btn.type = 'button';
     const classes = ['skin-card'];
@@ -166,6 +180,7 @@ function renderSkins(): void {
     if (display.kind === 'claim') classes.push('claimable');
     if (display.buyAffordable) classes.push('can-buy');
     btn.className = classes.join(' ');
+    btn.setAttribute('aria-pressed', String(persist.selectedSkin === skin.id));
 
     const metaParts: string[] = [];
     if (display.progressLine) {
@@ -176,14 +191,13 @@ function renderSkins(): void {
         `<div class="skin-meta-line skin-buy${display.buyAffordable ? ' buy-affordable' : ''}">${display.buyLine}</div>`,
       );
     }
-    if (display.statusLabel) {
-      metaParts.push(`<div class="skin-meta-line skin-cta">${display.statusLabel}</div>`);
-    }
-
     btn.innerHTML = `
-      <div class="skin-swatch" style="background:linear-gradient(90deg,${skin.head},${skin.body})"></div>
+      <div class="skin-card-heading">
+        <div class="skin-swatch" aria-hidden="true" style="background:linear-gradient(90deg,${skin.head},${skin.body})"></div>
+        <span class="skin-status skin-status-${display.kind}">${display.statusLabel || 'Locked'}</span>
+      </div>
       <div class="skin-name">${skin.name}</div>
-      <div class="skin-meta">${metaParts.join('')}</div>`;
+      <div class="skin-meta">${metaParts.join('')}${progressMarkup}</div>`;
     btn.addEventListener('click', () => {
       persist = loadPersist();
       if (persist.unlockedSkins.includes(skin.id)) {
@@ -296,6 +310,8 @@ function startLoop(): void {
 async function onDeath(): Promise<void> {
   stopLoop();
   if (!state) return;
+  persist = loadPersist();
+  const previousBest = persist.bestScore;
   persist = recordRun(state.score, state.coinsEarned);
   // Auto-unlock score skins
   for (const skin of SKINS) {
@@ -304,7 +320,11 @@ async function onDeath(): Promise<void> {
     }
   }
   await showInterstitial('death');
-  $('#dead-meta').textContent = `Score ${state.score} · Length ${state.length} · +${state.coinsEarned} coins`;
+  $('#dead-record').hidden = state.score <= previousBest;
+  $('#dead-score').textContent = String(state.score);
+  $('#dead-best').textContent = String(persist.bestScore);
+  $('#dead-length').textContent = String(state.length);
+  $('#dead-coins').textContent = `+${state.coinsEarned}`;
   const contBtn = $('#btn-continue') as HTMLButtonElement;
   contBtn.disabled = state.continued;
   contBtn.textContent = state.continued
@@ -452,6 +472,7 @@ function wireUi(): void {
   $('#bot-count').addEventListener('change', (event) => {
     const botCount = Number((event.currentTarget as HTMLSelectElement).value);
     persist = savePersist({ botCount });
+    refreshSettings();
     toast(`Arena set to ${persist.botCount} bots`);
   });
   $('#btn-remove-ads').addEventListener('click', async () => {

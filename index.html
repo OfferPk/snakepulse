@@ -72,9 +72,13 @@
           <div class="setting-row">
             <div class="setting-copy">
               <label for="bot-count">Arena pressure</label>
-              <p class="hint-text">Choose how many local bots share each run.</p>
+              <p class="hint-text" id="bot-count-hint">Choose how many local bots share each run.</p>
+              <div class="pressure-preview">
+                <p class="pressure-summary" id="bot-count-summary" aria-live="polite">Classic · 4 bots</p>
+                <div class="pressure-meter" id="bot-pressure-meter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              </div>
             </div>
-            <select id="bot-count" aria-label="Number of local bots">
+            <select id="bot-count" aria-label="Number of local bots" aria-describedby="bot-count-hint bot-count-summary">
               <option value="3">3 · Relaxed</option>
               <option value="4">4 · Classic</option>
               <option value="5">5 · Busy</option>
@@ -117,7 +121,13 @@
         <div id="overlay-dead" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="dead-title" tabindex="-1">
           <div class="panel">
             <h2 id="dead-title">Pulse lost</h2>
-            <p class="go-meta" id="dead-meta">Score 0 · Length 4</p>
+            <p id="dead-record" class="result-record" hidden>New personal best</p>
+            <div class="result-stats" role="group" aria-label="Run results">
+              <div class="result-stat result-stat-score"><span class="result-stat-label">Score</span><strong id="dead-score">0</strong></div>
+              <div class="result-stat"><span class="result-stat-label">Best</span><strong id="dead-best">0</strong></div>
+              <div class="result-stat"><span class="result-stat-label">Length</span><strong id="dead-length">4</strong></div>
+              <div class="result-stat result-stat-coins"><span class="result-stat-label">Coins earned</span><strong id="dead-coins">+0</strong></div>
+            </div>
             <button type="button" class="btn primary" id="btn-retry">Retry</button>
             <button type="button" class="btn secondary" id="btn-share">Share</button>
             <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
