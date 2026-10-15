@@ -23,9 +23,11 @@ npm run preview
 ## Features (v0.1.0)
 
 - Canvas arena with neon grid + hard walls
-- Player snake: swipe / arrow keys / turn buttons
+- Player snake: swipe / arrow keys / turn buttons; **Escape** or **P** pauses/resumes
 - Pellets + rare gold **pulse** speed pickup
 - 3–6 local AI bots (seek pellets, avoid walls; respawn)
+- Adjustable arena pressure: choose 3–6 bots, saved locally
+- Optional synthesized pickup, pulse, and crash sounds (offline; muteable)
 - Death overlay: Retry · Watch-to-continue stub · Home
 - Interstitial + remove-ads stubs (no AdMob keys)
 - ≥6 offline skins via best-score milestones or coins (`localStorage`)
@@ -33,7 +35,7 @@ npm run preview
 
 ## Persistence keys
 
-Prefix `snakepulse_`: `save` JSON with `bestScore`, `coins`, `unlockedSkins`, `selectedSkin`, `adsRemoved`, `mute`.
+Prefix `snakepulse_`: `save` JSON with `bestScore`, `coins`, `unlockedSkins`, `selectedSkin`, `adsRemoved`, `mute`, and `botCount`. The separate `snakepulse:howto` key remembers whether the first-run guide was dismissed.
 
 ## Stack
 

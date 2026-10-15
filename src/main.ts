@@ -1,4 +1,5 @@
 import './style.css';
+import { createToastPresenter } from './game/toast';
 import {
   continueRun,
   createGame,
@@ -8,6 +9,17 @@ import {
   setPlayerDir,
   tick,
 } from './game/engine';
+import { pauseGameWhenHidden } from './game/lifecycle';
+import {
+  dialogTabTargetIndex,
+  directionFromKey,
+  pauseShortcutAction,
+} from './game/controls';
+import {
+  howtoReturnFocusTarget,
+  screenFocusTarget,
+  type Screen,
+} from './game/screen-focus';
 import {
   buySkin,
   isHowtoSeen,
@@ -17,8 +29,8 @@ import {
   savePersist,
   unlockSkin,
 } from './game/persist';
-import { buildDeathShareText } from './game/share';
-import { SKINS, canUnlock, skinById, skinCardDisplay } from './game/skins';
+import { buildDeathShareText, shouldCopyAfterShareError } from './game/share';
+import { SKINS, canUnlock, skinById, skinCardDisplay, skinScoreProgress } from './game/skins';
 import type { Dir, GameState } from './game/types';
 import {
   purchaseRemoveAds,
@@ -26,64 +38,80 @@ import {
   showInterstitial,
   showRewarded,
 } from './ads/stubs';
-import { drawFrame, resizeCanvas } from './render/canvas';
-
-type Screen = 'home' | 'howto' | 'skins' | 'settings' | 'play';
+import { canvasCssSize, drawFrame, resizeCanvas } from './render/canvas';
+import { playGameSound, unlockGameAudio } from './game/sound';
+import type { SoundCue } from './game/sound';
+import { setPersonalBestBadge } from './game/results';
 
 const TICK_MS = 55;
+const ARENA_PRESSURE_SUMMARY: Record<number, string> = {
+  3: 'Relaxed · 3 bots',
+  4: 'Classic · 4 bots',
+  5: 'Busy · 5 bots',
+  6: 'Packed · 6 bots',
+};
 
 let persist = loadPersist();
 let state: GameState | null = null;
 let raf = 0;
 let lastTick = 0;
 let running = false;
+let lastAnnouncedScore: number | null = null;
 
 const $ = <T extends HTMLElement>(sel: string) => document.querySelector(sel) as T;
+const presentToast = createToastPresenter($('#toast'));
 
-function showScreen(name: Screen): void {
+function showScreen(
+  name: Screen,
+  shouldFocus = true,
+  focusTarget = screenFocusTarget(name),
+): void {
   document.querySelectorAll<HTMLElement>('.screen').forEach((el) => {
     el.hidden = el.dataset.screen !== name;
   });
+  const installHint = $('#a2hs');
+  installHint.hidden =
+    name !== 'home' ||
+    sessionStorage.getItem('snakepulse_a2hs') === '1' ||
+    window.matchMedia('(display-mode: standalone)').matches;
   if (name === 'home') refreshHome();
   if (name === 'skins') renderSkins();
   if (name === 'settings') refreshSettings();
+  if (shouldFocus) $(focusTarget).focus();
 }
 
 function toast(msg: string): void {
-  const el = $('#toast');
-  el.textContent = msg;
-  el.hidden = false;
-  window.setTimeout(() => {
-    el.hidden = true;
-  }, 1800);
+  presentToast(msg);
 }
 
-function legacyCopy(text: string): void {
+function legacyCopy(text: string): boolean {
+  let copied = false;
+  let ta: HTMLTextAreaElement | null = null;
   try {
-    const ta = document.createElement('textarea');
+    ta = document.createElement('textarea');
     ta.value = text;
     ta.style.position = 'fixed';
     ta.style.left = '-9999px';
     document.body.appendChild(ta);
     ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    copied = document.execCommand('copy');
   } catch {
-    /* ignore */
+    copied = false;
+  } finally {
+    ta?.remove();
   }
+  return copied;
 }
 
 function copyShare(text: string): void {
-  const done = () => toast('Copied share text');
+  const fallbackCopy = () => {
+    toast(legacyCopy(text) ? 'Copied share text' : 'Could not copy share text');
+  };
   if (navigator.clipboard?.writeText) {
-    void navigator.clipboard.writeText(text).then(done).catch(() => {
-      legacyCopy(text);
-      done();
-    });
+    void navigator.clipboard.writeText(text).then(() => toast('Copied share text')).catch(fallbackCopy);
     return;
   }
-  legacyCopy(text);
-  done();
+  fallbackCopy();
 }
 
 function shareDeath(): void {
@@ -92,8 +120,8 @@ function shareDeath(): void {
   const best = Math.max(persist.bestScore, state.score);
   const text = buildDeathShareText(state.score, best, skin.name);
   if (navigator.share) {
-    void navigator.share({ title: 'SnakePulse', text }).catch(() => {
-      copyShare(text);
+    void navigator.share({ title: 'SnakePulse', text }).catch((error: unknown) => {
+      if (shouldCopyAfterShareError(error)) copyShare(text);
     });
     return;
   }
@@ -109,6 +137,12 @@ function refreshHome(): void {
 function refreshSettings(): void {
   persist = loadPersist();
   $('#btn-mute').textContent = persist.mute ? '🔇 Sound off' : '🔊 Sound on';
+  $('#btn-mute').setAttribute('aria-pressed', String(!persist.mute));
+  ($('#bot-count') as HTMLSelectElement).value = String(persist.botCount);
+  $('#bot-count-summary').textContent = ARENA_PRESSURE_SUMMARY[persist.botCount] ?? ARENA_PRESSURE_SUMMARY[4]!;
+  document.querySelectorAll<HTMLElement>('#bot-pressure-meter span').forEach((segment, index) => {
+    segment.classList.toggle('active', index < persist.botCount - 2);
+  });
   $('#ads-status').textContent = persist.adsRemoved
     ? 'Ads: removed (stub)'
     : 'Ads: enabled (placeholder)';
@@ -116,10 +150,25 @@ function refreshSettings(): void {
 
 function refreshHud(): void {
   if (!state) return;
-  $('#hud-score').textContent = String(state.score);
+  const score = String(state.score);
+  const scoreElement = $('#hud-score');
+  if (scoreElement.textContent !== score) scoreElement.textContent = score;
+  if (lastAnnouncedScore !== state.score) {
+    if (lastAnnouncedScore !== null && state.score > lastAnnouncedScore) {
+      scoreElement.classList.remove('score-pop');
+      void scoreElement.offsetWidth;
+      scoreElement.classList.add('score-pop');
+    }
+    $('#game-announcer').textContent =
+      lastAnnouncedScore === null
+        ? `Game started. Score ${state.score}.`
+        : `Score ${state.score}.`;
+    lastAnnouncedScore = state.score;
+  }
   $('#hud-best').textContent = String(Math.max(persist.bestScore, state.score));
   $('#hud-len').textContent = String(state.length);
   $('#btn-mute-play').textContent = persist.mute ? '🔇' : '🔊';
+  $('#btn-mute-play').setAttribute('aria-pressed', String(!persist.mute));
 }
 
 function renderSkins(): void {
@@ -138,6 +187,10 @@ function renderSkins(): void {
       persist.unlockedSkins,
       persist.selectedSkin,
     );
+    const scoreProgress = skinScoreProgress(skin, persist.bestScore);
+    const progressMarkup = display.progressLine && scoreProgress !== null
+      ? `<div class="skin-progress" role="progressbar" aria-label="${skin.name} score unlock progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${scoreProgress}"><span class="skin-progress-fill" style="width:${scoreProgress}%"></span></div>`
+      : '';
     const btn = document.createElement('button');
     btn.type = 'button';
     const classes = ['skin-card'];
@@ -146,6 +199,7 @@ function renderSkins(): void {
     if (display.kind === 'claim') classes.push('claimable');
     if (display.buyAffordable) classes.push('can-buy');
     btn.className = classes.join(' ');
+    btn.setAttribute('aria-pressed', String(persist.selectedSkin === skin.id));
 
     const metaParts: string[] = [];
     if (display.progressLine) {
@@ -156,14 +210,13 @@ function renderSkins(): void {
         `<div class="skin-meta-line skin-buy${display.buyAffordable ? ' buy-affordable' : ''}">${display.buyLine}</div>`,
       );
     }
-    if (display.statusLabel) {
-      metaParts.push(`<div class="skin-meta-line skin-cta">${display.statusLabel}</div>`);
-    }
-
     btn.innerHTML = `
-      <div class="skin-swatch" style="background:linear-gradient(90deg,${skin.head},${skin.body})"></div>
+      <div class="skin-card-heading">
+        <div class="skin-swatch" aria-hidden="true" style="background:linear-gradient(90deg,${skin.head},${skin.body})"></div>
+        <span class="skin-status skin-status-${display.kind}">${display.statusLabel || 'Locked'}</span>
+      </div>
       <div class="skin-name">${skin.name}</div>
-      <div class="skin-meta">${metaParts.join('')}</div>`;
+      <div class="skin-meta">${metaParts.join('')}${progressMarkup}</div>`;
     btn.addEventListener('click', () => {
       persist = loadPersist();
       if (persist.unlockedSkins.includes(skin.id)) {
@@ -199,8 +252,8 @@ function renderSkins(): void {
 function layoutCanvas(): void {
   const canvas = $('#arena') as HTMLCanvasElement;
   const wrap = canvas.parentElement!;
-  const size = Math.min(wrap.clientWidth, wrap.clientHeight || wrap.clientWidth, 420);
-  resizeCanvas(canvas, Math.max(240, size));
+  const size = canvasCssSize(wrap.clientWidth, wrap.clientHeight || wrap.clientWidth);
+  resizeCanvas(canvas, size);
 }
 
 function paint(): void {
@@ -217,6 +270,26 @@ function stopLoop(): void {
   raf = 0;
 }
 
+function trapOverlayTab(event: KeyboardEvent): void {
+  const overlay = document.querySelector<HTMLElement>('.overlay:not([hidden])');
+  if (!overlay) return;
+  const focusable = Array.from(
+    overlay.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), select:not([disabled]), input:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true');
+  if (focusable.length === 0) {
+    event.preventDefault();
+    overlay.focus();
+    return;
+  }
+  const activeIndex = focusable.indexOf(document.activeElement as HTMLElement);
+  const targetIndex = dialogTabTargetIndex(activeIndex, focusable.length, event.shiftKey);
+  if (targetIndex === null) return;
+  event.preventDefault();
+  focusable[targetIndex].focus();
+}
+
 function startLoop(): void {
   stopLoop();
   running = true;
@@ -225,8 +298,14 @@ function startLoop(): void {
     if (!running || !state) return;
     let phase = state.phase;
     if (phase === 'playing') {
+      let soundCue: SoundCue | null = null;
       while (now - lastTick >= TICK_MS) {
+        const previousScore = state.score;
         tick(state);
+        if (state.phase === 'dead') soundCue = 'death';
+        else if (state.score > previousScore) {
+          soundCue = state.score - previousScore >= 5 ? 'pulse' : 'eat';
+        }
         lastTick += TICK_MS;
         phase = state.phase;
         if (phase !== 'playing') break;
@@ -234,9 +313,11 @@ function startLoop(): void {
       refreshHud();
       paint();
       if (phase === 'dead') {
+        if (soundCue) playGameSound(soundCue, persist.mute);
         void onDeath();
         return;
       }
+      if (soundCue) playGameSound(soundCue, persist.mute);
     } else {
       paint();
     }
@@ -248,6 +329,8 @@ function startLoop(): void {
 async function onDeath(): Promise<void> {
   stopLoop();
   if (!state) return;
+  persist = loadPersist();
+  const previousBest = persist.bestScore;
   persist = recordRun(state.score, state.coinsEarned);
   // Auto-unlock score skins
   for (const skin of SKINS) {
@@ -256,24 +339,33 @@ async function onDeath(): Promise<void> {
     }
   }
   await showInterstitial('death');
-  $('#dead-meta').textContent = `Score ${state.score} · Length ${state.length} · +${state.coinsEarned} coins`;
+  setPersonalBestBadge($('#dead-record'), state.score, previousBest);
+  $('#dead-score').textContent = String(state.score);
+  $('#dead-best').textContent = String(persist.bestScore);
+  $('#dead-length').textContent = String(state.length);
+  $('#dead-coins').textContent = `+${state.coinsEarned}`;
   const contBtn = $('#btn-continue') as HTMLButtonElement;
   contBtn.disabled = state.continued;
   contBtn.textContent = state.continued
     ? 'Continue used'
     : 'Watch to continue (stub)';
   $('#overlay-dead').hidden = false;
+  $('#dead-title').focus();
   paint();
 }
 
 function startGame(): void {
   persist = loadPersist();
+  if (!persist.mute) unlockGameAudio();
   const skin = skinById(persist.selectedSkin);
-  state = createGame({ botCount: 4 }, skin.head);
+  state = createGame({ botCount: persist.botCount }, skin.head);
   $('#overlay-dead').hidden = true;
   $('#overlay-interstitial').hidden = true;
   $('#overlay-pause').hidden = true;
+  $('#game-announcer').textContent = '';
+  lastAnnouncedScore = null;
   showScreen('play');
+  $('#btn-pause').focus();
   layoutCanvas();
   refreshHud();
   paint();
@@ -305,18 +397,31 @@ function bindInput(): void {
   });
 
   window.addEventListener('keydown', (e) => {
-    if (!state || state.phase !== 'playing') return;
-    const map: Record<string, Dir> = {
-      ArrowUp: 'U',
-      ArrowDown: 'D',
-      ArrowLeft: 'L',
-      ArrowRight: 'R',
-      w: 'U',
-      s: 'D',
-      a: 'L',
-      d: 'R',
-    };
-    const dir = map[e.key];
+    if (e.key === 'Tab') {
+      trapOverlayTab(e);
+      return;
+    }
+    if (!state) return;
+    const pauseAction = pauseShortcutAction(e.key, state.phase, e.repeat);
+    if (pauseAction === 'pause') {
+      e.preventDefault();
+      pauseGame(state);
+      stopLoop();
+      $('#overlay-pause').hidden = false;
+      $('#btn-resume').focus();
+      return;
+    }
+    if (pauseAction === 'resume') {
+      e.preventDefault();
+      resumeGame(state);
+      $('#overlay-pause').hidden = true;
+      lastTick = performance.now();
+      $('#btn-pause').focus();
+      startLoop();
+      return;
+    }
+    if (state.phase !== 'playing') return;
+    const dir = directionFromKey(e.key);
     if (dir) {
       e.preventDefault();
       setPlayerDir(state, dir);
@@ -342,6 +447,7 @@ function wireUi(): void {
     overlay.hidden = false;
     await new Promise<void>((resolve) => {
       const cont = $('#btn-interstitial-continue');
+      cont.focus();
       const done = () => {
         cont.removeEventListener('click', done);
         overlay.hidden = true;
@@ -354,21 +460,30 @@ function wireUi(): void {
   $('#btn-play').addEventListener('click', () => startGame());
   $('#btn-howto').addEventListener('click', () => showScreen('howto'));
   $('#btn-howto-ok').addEventListener('click', () => {
+    const hasSeenHowto = isHowtoSeen();
     markHowtoSeen();
-    showScreen('home');
+    showScreen('home', true, howtoReturnFocusTarget(hasSeenHowto));
   });
   $('#btn-skins').addEventListener('click', () => showScreen('skins'));
-  $('#btn-skins-back').addEventListener('click', () => showScreen('home'));
+  $('#btn-skins-back').addEventListener('click', () => showScreen('home', true, '#btn-skins'));
   $('#btn-settings').addEventListener('click', () => showScreen('settings'));
-  $('#btn-settings-back').addEventListener('click', () => showScreen('home'));
+  $('#btn-settings-back').addEventListener('click', () => showScreen('home', true, '#btn-settings'));
 
   $('#btn-mute').addEventListener('click', () => {
     persist = savePersist({ mute: !loadPersist().mute });
+    if (!persist.mute) unlockGameAudio();
     refreshSettings();
   });
   $('#btn-mute-play').addEventListener('click', () => {
     persist = savePersist({ mute: !loadPersist().mute });
+    if (!persist.mute) unlockGameAudio();
     refreshHud();
+  });
+  $('#bot-count').addEventListener('change', (event) => {
+    const botCount = Number((event.currentTarget as HTMLSelectElement).value);
+    persist = savePersist({ botCount });
+    refreshSettings();
+    toast(`Arena set to ${persist.botCount} bots`);
   });
   $('#btn-remove-ads').addEventListener('click', async () => {
     await purchaseRemoveAds();
@@ -385,13 +500,16 @@ function wireUi(): void {
   $('#btn-pause').addEventListener('click', () => {
     if (!state || state.phase !== 'playing') return;
     pauseGame(state);
+    stopLoop();
     $('#overlay-pause').hidden = false;
+    $('#btn-resume').focus();
   });
   $('#btn-resume').addEventListener('click', () => {
     if (!state) return;
     resumeGame(state);
     $('#overlay-pause').hidden = true;
     lastTick = performance.now();
+    $('#btn-pause').focus();
     startLoop();
   });
   $('#btn-pause-home').addEventListener('click', () => {
@@ -399,6 +517,7 @@ function wireUi(): void {
     state = null;
     $('#overlay-pause').hidden = true;
     showScreen('home');
+    $('#btn-play').focus();
   });
 
   $('#btn-retry').addEventListener('click', () => startGame());
@@ -407,6 +526,7 @@ function wireUi(): void {
     state = null;
     $('#overlay-dead').hidden = true;
     showScreen('home');
+    $('#btn-play').focus();
   });
   $('#btn-continue').addEventListener('click', async () => {
     if (!state || state.continued) return;
@@ -415,6 +535,7 @@ function wireUi(): void {
     if (continueRun(state)) {
       $('#overlay-dead').hidden = true;
       lastTick = performance.now();
+      $('#btn-pause').focus();
       startLoop();
       toast('Continued (stub reward)');
     }
@@ -436,6 +557,13 @@ function wireUi(): void {
       paint();
     }
   });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!pauseGameWhenHidden(state, document.hidden)) return;
+    stopLoop();
+    $('#overlay-pause').hidden = false;
+    $('#btn-resume').focus();
+  });
 }
 
 bindInput();
@@ -443,7 +571,7 @@ wireUi();
 if (!isHowtoSeen()) {
   showScreen('howto');
 } else {
-  showScreen('home');
+  showScreen('home', false);
 }
 
 if ('serviceWorker' in navigator) {

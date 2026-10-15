@@ -23,6 +23,11 @@ export function skinById(id: string): Skin {
   return SKINS.find((s) => s.id === id) ?? SKINS[0]!;
 }
 
+export function skinScoreProgress(skin: Skin, bestScore: number): number | null {
+  if (skin.scoreUnlock <= 0) return null;
+  return Math.max(0, Math.min(100, Math.round((bestScore / skin.scoreUnlock) * 100)));
+}
+
 export function canUnlock(skin: Skin, bestScore: number, coins: number, unlocked: string[]): boolean {
   if (unlocked.includes(skin.id)) return true;
   if (skin.scoreUnlock === 0 && skin.coinCost === 0) return true;

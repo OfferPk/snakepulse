@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { buildDeathShareText } from '../src/game/share';
+import { buildDeathShareText, shouldCopyAfterShareError } from '../src/game/share';
 import { isHowtoSeen, markHowtoSeen } from '../src/game/persist';
 
 describe('buildDeathShareText', () => {
@@ -15,6 +15,17 @@ describe('buildDeathShareText', () => {
 
   it('ignores blank skin name', () => {
     expect(buildDeathShareText(1, 1, '  ')).toBe('SnakePulse — score 1 · best 1');
+  });
+});
+
+describe('shouldCopyAfterShareError', () => {
+  it('does not copy when the user cancels native sharing', () => {
+    expect(shouldCopyAfterShareError({ name: 'AbortError' })).toBe(false);
+  });
+
+  it('allows clipboard fallback when native sharing fails', () => {
+    expect(shouldCopyAfterShareError(new Error('Share unavailable'))).toBe(true);
+    expect(shouldCopyAfterShareError({ name: 'NotAllowedError' })).toBe(true);
   });
 });
 

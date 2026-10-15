@@ -6,9 +6,22 @@ import {
   isClaimableByScore,
   skinCardDisplay,
   skinById,
+  skinScoreProgress,
 } from '../src/game/skins';
 
 const lime = skinById('lime-spark'); // score 120, coins 40
+
+describe('skin score progress', () => {
+  it('clamps milestone progress between zero and one hundred percent', () => {
+    expect(skinScoreProgress(lime, 0)).toBe(0);
+    expect(skinScoreProgress(lime, 60)).toBe(50);
+    expect(skinScoreProgress(lime, 200)).toBe(100);
+  });
+
+  it('omits progress for skins without a score milestone', () => {
+    expect(skinScoreProgress(skinById('pulse-cyan'), 80)).toBeNull();
+  });
+});
 
 describe('canUnlock', () => {
   it('allows free starter and already unlocked', () => {

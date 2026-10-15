@@ -7,6 +7,7 @@ export interface PersistState {
   selectedSkin: string;
   adsRemoved: boolean;
   mute: boolean;
+  botCount: number;
 }
 
 const DEFAULT: PersistState = {
@@ -16,7 +17,18 @@ const DEFAULT: PersistState = {
   selectedSkin: 'pulse-cyan',
   adsRemoved: false,
   mute: false,
+  botCount: 4,
 };
+
+function normalizeBotCount(value: unknown): number {
+  const count = typeof value === 'number'
+    ? value
+    : typeof value === 'string' && value.trim() !== ''
+      ? Number(value)
+      : Number.NaN;
+  if (!Number.isFinite(count)) return DEFAULT.botCount;
+  return Math.min(6, Math.max(3, Math.round(count)));
+}
 
 function read(): PersistState {
   try {
@@ -32,6 +44,7 @@ function read(): PersistState {
       selectedSkin: typeof parsed.selectedSkin === 'string' ? parsed.selectedSkin : DEFAULT.selectedSkin,
       adsRemoved: Boolean(parsed.adsRemoved),
       mute: Boolean(parsed.mute),
+      botCount: normalizeBotCount(parsed.botCount),
     };
   } catch {
     return { ...DEFAULT, unlockedSkins: [...DEFAULT.unlockedSkins] };
@@ -52,6 +65,7 @@ export function loadPersist(): PersistState {
 
 export function savePersist(partial: Partial<PersistState>): PersistState {
   const next = { ...read(), ...partial };
+  next.botCount = normalizeBotCount(next.botCount);
   if (partial.unlockedSkins) {
     next.unlockedSkins = Array.from(new Set(['pulse-cyan', ...partial.unlockedSkins]));
   }

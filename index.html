@@ -21,8 +21,11 @@
           <div class="logo-mark" aria-hidden="true"></div>
           <h1 class="logo">SnakePulse</h1>
           <p class="tagline">Neon endless snake. Grow, dodge local AI bots. Fully offline.</p>
-          <p class="meta-line">Best: <strong id="home-best">0</strong> · Coins: <strong id="home-coins">0</strong></p>
-          <p class="meta-line">Local practice arena — no online matchmaking.</p>
+          <div class="home-stats" role="group" aria-label="Your run stats">
+            <p class="home-stat"><span>Best score</span><strong id="home-best">0</strong></p>
+            <p class="home-stat"><span>Coins</span><strong id="home-coins">0</strong></p>
+          </div>
+          <p class="meta-line home-note">Local practice arena <span aria-hidden="true">·</span> no online matchmaking</p>
           <button type="button" class="btn primary" id="btn-play">Play</button>
           <button type="button" class="btn secondary" id="btn-skins">Skins</button>
           <button type="button" class="btn ghost" id="btn-howto">How to play</button>
@@ -33,13 +36,13 @@
       <!-- HOW TO -->
       <section class="screen" data-screen="howto" hidden>
         <div class="panel">
-          <h2>How to play</h2>
+          <h2 id="howto-title" tabindex="-1">How to play</h2>
           <ul class="howto-list">
-            <li><strong>Swipe</strong> or tap left/right buttons to steer your neon snake.</li>
-            <li><strong>Eat</strong> cyan pellets to grow. Gold pellets give a short speed pulse.</li>
-            <li><strong>Hard walls</strong> — hitting the border ends the run.</li>
-            <li><strong>Local AI bots</strong> share the arena (offline only). Hitting a body ends your run.</li>
-            <li><strong>Skins</strong> unlock from best score or coins — no live events.</li>
+            <li><strong>Steer:</strong> Your snake moves forward automatically. Swipe on the arena or use arrow/WASD keys to choose a direction; Turn buttons rotate left or right from your current heading.</li>
+            <li><strong>Collect:</strong> Cyan pellets grow your snake and add 1 point. Earn 1 coin for every 5 points. Gold Pulse pellets grow you, add 5 points and 1 coin, and briefly speed you up.</li>
+            <li><strong>Avoid crashes:</strong> Your run ends if your head hits the arena border, your own body, or another snake's body.</li>
+            <li><strong>Your goal:</strong> Stay alive, collect pellets, and beat your saved Best score. Local AI bots share the arena; set 3–6 bots in Settings.</li>
+            <li><strong>Pause:</strong> Tap the Pause button or press Escape/P. Tap Resume or press Escape/P to continue.</li>
           </ul>
           <button type="button" class="btn primary" id="btn-howto-ok">Got it</button>
         </div>
@@ -49,8 +52,8 @@
       <section class="screen" data-screen="skins" hidden>
         <div class="panel">
           <header class="subhead">
-            <button type="button" class="icon-btn" id="btn-skins-back" aria-label="Back">←</button>
-            <h2>Skins</h2>
+            <button type="button" class="icon-btn" id="btn-skins-back" aria-label="Back from Skins">←</button>
+            <h2 id="skins-title" tabindex="-1">Skins</h2>
           </header>
           <p class="hint-text">Coins: <strong id="skins-coins">0</strong> · Best: <strong id="skins-best">0</strong></p>
           <div id="skin-grid" class="skin-grid"></div>
@@ -62,13 +65,29 @@
       <section class="screen" data-screen="settings" hidden>
         <div class="panel">
           <header class="subhead">
-            <button type="button" class="icon-btn" id="btn-settings-back" aria-label="Back">←</button>
-            <h2>Settings</h2>
+            <button type="button" class="icon-btn" id="btn-settings-back" aria-label="Back from Settings">←</button>
+            <h2 id="settings-title" tabindex="-1">Settings</h2>
           </header>
-          <button type="button" class="btn secondary block" id="btn-mute">🔊 Sound on</button>
+          <button type="button" class="btn secondary block" id="btn-mute" aria-pressed="true">🔊 Sound on</button>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label for="bot-count">Arena pressure</label>
+              <p class="hint-text" id="bot-count-hint">Choose how many local bots share each run.</p>
+              <div class="pressure-preview">
+                <p class="pressure-summary" id="bot-count-summary" aria-live="polite">Classic · 4 bots</p>
+                <div class="pressure-meter" id="bot-pressure-meter" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              </div>
+            </div>
+            <select id="bot-count" aria-label="Number of local bots" aria-describedby="bot-count-hint bot-count-summary">
+              <option value="3">3 · Relaxed</option>
+              <option value="4">4 · Classic</option>
+              <option value="5">5 · Busy</option>
+              <option value="6">6 · Packed</option>
+            </select>
+          </div>
           <button type="button" class="btn secondary block" id="btn-remove-ads">Remove ads (stub)</button>
           <p class="hint-text" id="ads-status">Ads: enabled (placeholder)</p>
-          <p class="hint-text">Original neon pulse theme. Offline PWA. No real billing / AdMob keys in v0.1.</p>
+          <p class="hint-text">Sound effects are synthesized on your device. SnakePulse stays offline; ads and billing are placeholders only.</p>
         </div>
       </section>
 
@@ -76,43 +95,52 @@
       <section class="screen" data-screen="play" hidden>
         <header class="hud">
           <button type="button" class="icon-btn" id="btn-menu" aria-label="Menu">⌂</button>
-          <div class="hud-stat"><span class="lbl">Score</span><span id="hud-score">0</span></div>
-          <div class="hud-stat"><span class="lbl">Best</span><span id="hud-best">0</span></div>
-          <div class="hud-stat"><span class="lbl">Len</span><span id="hud-len">4</span></div>
-          <button type="button" class="icon-btn" id="btn-pause" aria-label="Pause">❚❚</button>
+          <div class="hud-stat" role="group" aria-label="Score"><span class="lbl" aria-hidden="true">Score</span><span id="hud-score">0</span></div>
+          <div class="hud-stat" role="group" aria-label="Best score"><span class="lbl" aria-hidden="true">Best</span><span id="hud-best">0</span></div>
+          <div class="hud-stat" role="group" aria-label="Snake length"><span class="lbl" aria-hidden="true">Len</span><span id="hud-len">4</span></div>
+          <button type="button" class="icon-btn" id="btn-pause" aria-label="Pause (Escape or P)" title="Pause (Escape or P)">❚❚</button>
         </header>
         <div class="board-wrap">
           <canvas id="arena" width="420" height="420" aria-label="SnakePulse arena"></canvas>
         </div>
         <div class="play-bar">
-          <button type="button" class="btn secondary" id="btn-turn-left">◀ Turn</button>
-          <button type="button" class="btn ghost" id="btn-mute-play">🔊</button>
-          <button type="button" class="btn secondary" id="btn-turn-right">Turn ▶</button>
+          <button type="button" class="btn secondary" id="btn-turn-left" aria-label="Turn left">◀ Turn</button>
+          <button type="button" class="btn ghost" id="btn-mute-play" aria-label="Toggle sound" aria-pressed="true">🔊</button>
+          <button type="button" class="btn secondary" id="btn-turn-right" aria-label="Turn right">Turn ▶</button>
         </div>
+        <p id="game-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
 
-        <div id="overlay-interstitial" class="overlay" hidden>
+        <div id="overlay-interstitial" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="interstitial-title" tabindex="-1">
           <div class="panel">
-            <h2>Ad placeholder (stub)</h2>
+            <h2 id="interstitial-title">Ad placeholder (stub)</h2>
             <p class="go-meta" id="interstitial-reason">Death interstitial stub — no real network ad.</p>
             <button type="button" class="btn primary" id="btn-interstitial-continue">Continue</button>
           </div>
         </div>
 
-        <div id="overlay-dead" class="overlay" hidden>
+        <div id="overlay-dead" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="dead-title" tabindex="-1">
           <div class="panel">
-            <h2>Pulse lost</h2>
-            <p class="go-meta" id="dead-meta">Score 0 · Length 4</p>
-            <button type="button" class="btn primary" id="btn-retry">Retry</button>
-            <button type="button" class="btn secondary" id="btn-share">Share</button>
-            <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
-            <button type="button" class="btn ghost" id="btn-dead-home">Home</button>
+            <h2 id="dead-title" class="dialog-title" tabindex="-1">Pulse lost</h2>
+            <p id="dead-record" class="result-record" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+            <div class="result-stats" role="group" aria-label="Run results">
+              <div class="result-stat result-stat-score"><span class="result-stat-label">Score</span><strong id="dead-score">0</strong></div>
+              <div class="result-stat"><span class="result-stat-label">Best</span><strong id="dead-best">0</strong></div>
+              <div class="result-stat"><span class="result-stat-label">Length</span><strong id="dead-length">4</strong></div>
+              <div class="result-stat result-stat-coins"><span class="result-stat-label">Coins earned</span><strong id="dead-coins">+0</strong></div>
+            </div>
+            <div class="result-actions" role="group" aria-label="Result actions">
+              <button type="button" class="btn primary" id="btn-retry">Retry</button>
+              <button type="button" class="btn secondary" id="btn-share">Share</button>
+              <button type="button" class="btn ghost" id="btn-dead-home">Home</button>
+              <button type="button" class="btn secondary" id="btn-continue">Watch to continue (stub)</button>
+            </div>
           </div>
         </div>
 
-        <div id="overlay-pause" class="overlay" hidden>
+        <div id="overlay-pause" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="pause-title" tabindex="-1">
           <div class="panel">
-            <h2>Paused</h2>
-            <p class="go-meta">Local arena — resume anytime.</p>
+            <h2 id="pause-title">Paused</h2>
+            <p class="go-meta">The game pauses if you leave the app. Resume when you're ready.</p>
             <button type="button" class="btn primary" id="btn-resume">Resume</button>
             <button type="button" class="btn ghost" id="btn-pause-home">Home</button>
           </div>
@@ -123,7 +151,7 @@
 
       <div id="a2hs" class="a2hs" hidden>
         <span>Install SnakePulse: browser menu → <strong>Add to Home Screen</strong></span>
-        <button type="button" id="a2hs-ok" class="btn tiny">OK</button>
+        <button type="button" id="a2hs-ok" class="btn tiny" aria-label="Dismiss install hint">OK</button>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

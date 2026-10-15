@@ -54,7 +54,7 @@ Login nahi hai — koi email/password zaroori nahi.
 
 ### Play / Arena
 - **Kahan milega:** Home → **Play**
-- **Kaise use karein:** Swipe (canvas), arrow keys, ya ◀ / ▶ turn buttons
+- **Kaise use karein:** Swipe (canvas), arrow keys, ya ◀ / ▶ turn buttons; **Escape ya P** se pause/resume
 - **Result:** Snake move karti hai; wall / apna body / bot body = run khatam
 
 ### Pellets + Pulse
