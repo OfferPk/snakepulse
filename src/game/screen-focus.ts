@@ -12,3 +12,8 @@ const FOCUS_TARGETS: Record<Screen, string> = {
 export function screenFocusTarget(screen: Screen): string {
   return FOCUS_TARGETS[screen];
 }
+
+/** Return the correct home target after closing automatic or manually opened how-to. */
+export function howtoReturnFocusTarget(howtoWasAlreadySeen: boolean): string {
+  return howtoWasAlreadySeen ? '#btn-howto' : '#btn-play';
+}

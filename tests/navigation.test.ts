@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { screenFocusTarget } from '../src/game/screen-focus';
+import { howtoReturnFocusTarget, screenFocusTarget } from '../src/game/screen-focus';
 
 describe('screen keyboard focus targets', () => {
   it('focuses the primary action on home and gameplay controls in play', () => {
@@ -11,5 +11,10 @@ describe('screen keyboard focus targets', () => {
     expect(screenFocusTarget('howto')).toBe('#howto-title');
     expect(screenFocusTarget('skins')).toBe('#btn-skins-back');
     expect(screenFocusTarget('settings')).toBe('#btn-settings-back');
+  });
+
+  it('returns to Play after first-run onboarding and to How to play after manual help', () => {
+    expect(howtoReturnFocusTarget(false)).toBe('#btn-play');
+    expect(howtoReturnFocusTarget(true)).toBe('#btn-howto');
   });
 });

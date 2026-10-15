@@ -15,7 +15,11 @@ import {
   directionFromKey,
   pauseShortcutAction,
 } from './game/controls';
-import { screenFocusTarget, type Screen } from './game/screen-focus';
+import {
+  howtoReturnFocusTarget,
+  screenFocusTarget,
+  type Screen,
+} from './game/screen-focus';
 import {
   buySkin,
   isHowtoSeen,
@@ -456,8 +460,9 @@ function wireUi(): void {
   $('#btn-play').addEventListener('click', () => startGame());
   $('#btn-howto').addEventListener('click', () => showScreen('howto'));
   $('#btn-howto-ok').addEventListener('click', () => {
+    const hasSeenHowto = isHowtoSeen();
     markHowtoSeen();
-    showScreen('home', true, '#btn-howto');
+    showScreen('home', true, howtoReturnFocusTarget(hasSeenHowto));
   });
   $('#btn-skins').addEventListener('click', () => showScreen('skins'));
   $('#btn-skins-back').addEventListener('click', () => showScreen('home', true, '#btn-skins'));

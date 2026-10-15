@@ -15,6 +15,8 @@
 - **Audio feedback:** optional locally synthesized pickup, pulse, and crash cues now make the existing sound toggle functional.
 - **Interface polish:** clearer controls/help copy, accessible sound-toggle state and keyboard focus, plus a compact settings control and reduced-motion-friendly transitions.
 - **Compact gameplay layout:** the arena now scales into short landscape viewports; HUD labels are clearer, icon controls meet a 44px target, and steering/sound controls retain a 48px touch target.
+- **Beginner gameplay guide:** the in-game How to play now explains automatic movement, steering, pellet scoring, collision rules, bot settings, and pausing.
+- **First-run onboarding focus:** dismissing the automatic How to play screen now focuses Play; manually opened help still returns focus to How to play.
 - **Keyboard pause:** Escape or P pauses/resumes a run, with focus moved to the pause controls for keyboard users; held-key repeats are ignored to prevent accidental toggling.
 - **Accessible gameplay dialogs:** pause, death, and interstitial overlays are labeled modal dialogs with contained Tab navigation and focus placed on the primary action.
 - **Screen navigation focus:** changing screens now moves keyboard focus to the new screen's heading or primary action; Back returns focus to the control that opened the screen.
