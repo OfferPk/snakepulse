@@ -2,6 +2,11 @@ import { DIR_DELTA } from '../game/types';
 import type { Cell, Dir, GameState } from '../game/types';
 import { skinById } from '../game/skins';
 
+export function canvasCssSize(width: number, height: number): number {
+  const availableHeight = height > 0 ? height : width;
+  return Math.max(160, Math.min(width, availableHeight, 420));
+}
+
 export function resizeCanvas(canvas: HTMLCanvasElement, cssSize: number): void {
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.style.width = `${cssSize}px`;

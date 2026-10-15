@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { headEyeCenters } from '../src/render/canvas';
+import { canvasCssSize, headEyeCenters } from '../src/render/canvas';
+
+describe('responsive canvas sizing', () => {
+  it('fits a narrow portrait layout to its available content width', () => {
+    expect(canvasCssSize(296, 420)).toBe(296);
+  });
+
+  it('shrinks below the old minimum on a short landscape layout', () => {
+    expect(canvasCssSize(456, 178)).toBe(178);
+  });
+
+  it('caps large displays and uses width when height is not measured', () => {
+    expect(canvasCssSize(600, 600)).toBe(420);
+    expect(canvasCssSize(296, 0)).toBe(296);
+  });
+});
 
 describe('snake head eye placement', () => {
   it('keeps both eyes symmetric and places them ahead of the head center', () => {

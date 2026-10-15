@@ -34,7 +34,7 @@ import {
   showInterstitial,
   showRewarded,
 } from './ads/stubs';
-import { drawFrame, resizeCanvas } from './render/canvas';
+import { canvasCssSize, drawFrame, resizeCanvas } from './render/canvas';
 import { playGameSound, unlockGameAudio } from './game/sound';
 import type { SoundCue } from './game/sound';
 import { setPersonalBestBadge } from './game/results';
@@ -248,8 +248,8 @@ function renderSkins(): void {
 function layoutCanvas(): void {
   const canvas = $('#arena') as HTMLCanvasElement;
   const wrap = canvas.parentElement!;
-  const size = Math.min(wrap.clientWidth, wrap.clientHeight || wrap.clientWidth, 420);
-  resizeCanvas(canvas, Math.max(240, size));
+  const size = canvasCssSize(wrap.clientWidth, wrap.clientHeight || wrap.clientWidth);
+  resizeCanvas(canvas, size);
 }
 
 function paint(): void {

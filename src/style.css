@@ -214,7 +214,7 @@ button:focus-visible, select:focus-visible {
   background: rgba(34, 211, 238, 0.1);
   border: 1px solid var(--border);
   color: var(--text);
-  width: 40px; height: 40px; border-radius: 10px;
+  width: 44px; height: 44px; border-radius: 10px;
   font-size: 1.1rem; cursor: pointer;
 }
 
@@ -304,7 +304,7 @@ button:focus-visible, select:focus-visible {
   padding: 6px 8px;
   text-align: center;
 }
-.hud-stat .lbl { display: block; font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
+.hud-stat .lbl { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
 .hud-stat span:last-child { font-weight: 700; color: var(--cyan); }
 .hud-stat #hud-score { display: inline-block; transform-origin: center; }
 .hud-stat #hud-score.score-pop { animation: score-pop 280ms cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -333,7 +333,7 @@ button:focus-visible, select:focus-visible {
   gap: 8px;
   margin-top: 10px;
 }
-.play-bar .btn { margin: 0; }
+.play-bar .btn { min-height: 48px; margin: 0; }
 
 .overlay {
   position: fixed; inset: 0;
@@ -459,6 +459,9 @@ button:focus-visible, select:focus-visible {
 }
 
 @media (max-height: 500px) {
+  .hud { margin-bottom: 6px; }
+  .board-wrap { min-height: 0; }
+  .play-bar { gap: 6px; margin-top: 6px; }
   #overlay-dead .panel { padding: 12px; }
   #overlay-dead .result-stats { gap: 4px; margin: 8px 0; }
   #overlay-dead .result-stat { padding: 6px 8px; }
