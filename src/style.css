@@ -397,7 +397,7 @@ button:focus-visible, select:focus-visible {
 .result-stat-score { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
 .result-stat-coins { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
 .result-stat-label { color: var(--muted); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-.result-stat strong { overflow: hidden; color: var(--cyan); font-size: 1.1rem; font-variant-numeric: tabular-nums; text-overflow: ellipsis; }
+.result-stat strong { min-width: 0; color: var(--cyan); font-size: 1.1rem; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .result-stat-score strong { font-size: 1.75rem; }
 .result-stat-coins strong { color: var(--lime); }
 .result-actions {
@@ -475,6 +475,9 @@ button:focus-visible, select:focus-visible {
   .play-bar .btn { padding-inline: 6px; font-size: 0.9rem; }
   .result-actions { gap: 6px; }
   .result-actions > .btn { padding-inline: 7px; font-size: 0.86rem; }
+  #overlay-dead .result-stat-label { color: var(--text); font-size: 0.75rem; letter-spacing: 0.06em; }
+  #overlay-dead .result-stat-score { align-items: flex-start; flex-direction: column; gap: 2px; }
+  #overlay-dead .result-stat-score strong { width: 100%; font-size: clamp(1.25rem, 7vw, 1.5rem); line-height: 1.1; }
   .skin-status { max-width: 56%; padding: 3px 4px; font-size: 0.55rem; letter-spacing: 0.02em; }
   .setting-row { gap: 8px; padding: 10px; }
   .setting-row select { min-width: 112px; padding-inline: 8px 22px; font-size: 0.78rem; }
